@@ -3,23 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mindfulness per Bambini e Adolescenti: Un Percorso Positivo</title>
+    <title>Caterina Figlioli - Mindfulness e Benessere</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Serene Earth -->
-    <!-- Application Structure Plan: Ho progettato un'architettura a sezioni tematiche, navigabile tramite una barra superiore fissa, per trasformare il denso report accademico in un'esperienza esplorabile. La struttura è: 1) Eroe introduttivo per un impatto immediato, 2) Panoramica per definire i concetti, 3) Benefici per aree tematiche (salute, cognizione), 4) L'Efficacia degli Interventi con grafici interattivi per analizzare i dati quantitativi, 5) Fattori Chiave con un diagramma interattivo per spiegare le variabili moderatrici, 6) Fonti per contestualizzare la base scientifica. Questa struttura facilita la comprensione progressiva e permette all'utente di saltare direttamente alle informazioni di suo interesse, migliorando l'usabilità rispetto a una lettura lineare. -->
-    <!-- Visualization & Content Choices: 
-        - Panoramica: Testo e icone (HTML/Unicode) per definire la mindfulness (Goal: Inform).
-        - Benefici: Card interattive (HTML/JS) per raggruppare i benefici in categorie (es. benessere emotivo, cognizione). (Goal: Organize/Inform).
-        - L'Efficacia degli Interventi: Grafico a barre Chart.js per confrontare gli effetti di diversi MBIs (MBSR vs MBCT) su ansia/benessere emotivo, con testo riscritto per enfatizzare solo i risultati positivi. L'unità di misura è stata chiarita e aggiunta una barra "baseline" per un confronto immediato. Aggiunti link diretti alle fonti sotto il grafico. (Goal: Compare/Analyze).
-        - Fattori Chiave: Diagramma interattivo (HTML/CSS/JS) con nodi cliccabili che si ingrandiscono e mostrano la spiegazione al loro interno (stile "ragnatela"). La logica di reset è ora gestita cliccando nuovamente il nodo attivo. Migliorata la responsività e la fluidità visiva. Il testo all'interno delle bolle ingrandite è ora completamente visibile e leggermente più piccolo. Aggiunta una quinta bolla per "Supporto Scolastico". Le linee si collegano sempre al centro del diagramma. (Goal: Relationships/Explain).
-        - Fonti: Elenco numerato con titoli accattivanti e, dove disponibile, l'istituzione o il ricercatore di spicco, per dare maggiore impatto e credibilità. (Goal: Inform).
-        - Effetti Visivi: Implementazione di zoom e dissolvenza per le card basata sulla loro posizione nel viewport, per aggiungere profondità e dinamicità.
-        - Giustificazione: Questa combinazione di testo, icone e grafici interattivi traduce dati complessi e qualitativi in formati digeribili e coinvolgenti, ottimizzati per la scoperta e la sintesi delle informazioni chiave, con un focus esclusivo sui benefici e sulle opportunità. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -38,124 +26,17 @@
             background-color: #FFFFFF;
             border: 1px solid #E2E8F0;
             border-radius: 0.75rem;
-            transition: transform 0.3s, box-shadow 0.3s, opacity 0.6s;
-            transform: scale(0.9);
-            opacity: 0.7;
-        }
-        .card.in-view {
-            transform: scale(1);
-            opacity: 1;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         .card:hover {
-            transform: translateY(-5px) scale(1.02);
+            transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 45vh;
+        .social-icon {
+            transition: transform 0.2s;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
-        }
-        .factor-node {
-            cursor: pointer;
-            transition: all 0.5s ease-in-out; /* Smoother transition */
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-weight: 600;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            z-index: 10;
-            overflow: hidden;
-            padding: 0.5rem;
-            box-sizing: border-box; /* Include padding in width/height */
-        }
-        .factor-node:hover {
-            transform: scale(1.05);
-            filter: brightness(0.95);
-        }
-        .factor-node.active {
-            width: 280px; /* Larger size when active */
-            height: 280px; /* Larger size when active */
-            border-radius: 50%;
-            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
-            z-index: 20;
-            overflow: visible; /* Allow text to expand */
-            padding: 2rem; /* More padding for expanded text */
-        }
-        .factor-node .node-title {
-            display: block;
-            font-size: 1rem; /* Slightly smaller for better fit in small nodes */
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-            transition: opacity 0.3s ease-in-out;
-            line-height: 1.1; /* Tighter line height */
-        }
-        .factor-node.active .node-title {
-            display: none;
-            opacity: 0;
-        }
-        .factor-node .node-description {
-            display: none;
-            font-size: 0.85rem; /* A bit smaller as requested */
-            line-height: 1.3;
-            word-wrap: break-word;
-            white-space: normal;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-        .factor-node.active .node-description {
-            display: block;
-            opacity: 1;
-        }
-
-        /* Color classes for nodes */
-        .node-teal { background-color: #38B2AC; }
-        .node-orange { background-color: #ED8936; }
-        .node-purple { background-color: #805AD5; }
-        .node-red { background-color: #E53E3E; } /* New color for 5th node */
-        .node-blue { background-color: #4299E1; } /* New color for 5th node */
-        
-        .source-link {
-            color: #5A67D8;
-            text-decoration: underline;
-        }
-        .source-list li {
-            margin-bottom: 0.75rem;
-        }
-        .source-list strong {
-            color: #3182CE;
-        }
-        .diagram-container {
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-            height: 600px; /* Increased height for spider web layout */
-            margin-left: auto;
-            margin-right: auto;
-            display: block;
-        }
-        .diagram-line {
-            position: absolute;
-            background-color: #A0AEC0; /* Darker gray for better visibility */
-            height: 2px;
-            transform-origin: 0 50%;
-            z-index: 5;
-            transition: all 0.5s ease-in-out; /* Smoother transition */
+        .social-icon:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -163,13 +44,12 @@
 
     <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <div class="text-xl font-bold text-gray-800">Mindfulness e Giovani</div>
+            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
             <div class="hidden md:flex space-x-8">
-                <a href="#overview" class="nav-link py-2">Panoramica</a>
-                <a href="#benefits" class="nav-link py-2">Benefici</a>
-                <a href="#evidence" class="nav-link py-2">L'Efficacia degli Interventi</a>
-                <a href="#factors" class="nav-link py-2">Fattori di Successo</a>
-                <a href="#sources" class="nav-link py-2">Fonti</a>
+                <a href="index.html" class="nav-link py-2 active">Home</a>
+                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
+                <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
             </div>
              <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,169 +58,113 @@
             </button>
         </nav>
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
-            <a href="#overview" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Panoramica</a>
-            <a href="#benefits" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Benefici</a>
-            <a href="#evidence" class="block py-2 text-gray-700 hover:text-[#5A67D8]">L'Efficacia degli Interventi</a>
-            <a href="#factors" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Fattori di Successo</a>
-            <a href="#sources" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Fonti</a>
+            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
+            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
         </div>
     </header>
 
     <main>
-        <section id="hero" class="py-20 bg-white">
+        <section id="hero" class="py-20 bg-white text-center">
+            <div class="container mx-auto px-6">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Benvenuti nel Mondo della Consapevolezza</h1>
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Sono Caterina Figlioli, e vi guiderò in un percorso di benessere e crescita interiore attraverso la mindfulness e lo yoga.</p>
+                <div class="mt-8">
+                    <!-- Placeholder for Presentation Video -->
+                    <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden max-w-4xl mx-auto flex items-center justify-center">
+                        <p class="text-gray-500 text-lg">Video di presentazione (verrà caricato qui)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-16">
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center md:text-left">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Un Po' di Me</h2>
+                    <p class="text-lg text-gray-600 mb-4">testotestotestotesto</p>
+                    <p class="text-lg text-gray-600">testotestotestotesto</p>
+                </div>
+                <div class="flex justify-center md:justify-end">
+                    <img src="https://placehold.co/400x400/E2E8F0/4A4A4A?text=Foto+Profilo" alt="Foto di Caterina Figlioli" class="rounded-full w-64 h-64 md:w-80 md:h-80 object-cover shadow-lg">
+                </div>
+            </div>
+        </section>
+
+        <section id="diplomas" class="py-16 bg-white">
             <div class="container mx-auto px-6 text-center">
-                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Coltivare la Calma Interiore nei Giovani</h1>
-                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Un viaggio sereno alla scoperta della mindfulness per bambini e adolescenti. Esplora i benefici, le opportunità e il futuro promettente di questa pratica che arricchisce il benessere delle nuove generazioni.</p>
-            </div>
-        </section>
-
-        <section id="overview" class="py-16">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Comprendere la Mindfulness</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La mindfulness, o consapevolezza, è un'attenzione speciale che si porta al momento presente, con intenzione e senza giudizio. È una pratica preziosa che aiuta i giovani a coltivare una presenza mentale più profonda.</p>
-                </div>
-                <div class="grid md:grid-cols-3 gap-8 text-center">
-                    <div class="card p-8">
-                        <div class="text-4xl mb-4">🧘</div>
-                        <h3 class="text-xl font-semibold mb-2">Intenzione</h3>
-                        <p>È il desiderio sincero di essere presenti, scegliendo con cura di portare la nostra attenzione a ciò che accade qui e ora.</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">I Miei Diplomi e Certificazioni</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card p-6">
+                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+1" alt="Diploma 1" class="mx-auto mb-4 rounded-md">
+                        <h3 class="text-xl font-semibold mb-2">Diploma Yoga per Bambini</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
-                    <div class="card p-8">
-                        <div class="text-4xl mb-4">🎯</div>
-                        <h3 class="text-xl font-semibold mb-2">Attenzione</h3>
-                        <p>La capacità di dirigere la nostra mente, di mantenerla focalizzata e di spostarla con dolcezza tra i pensieri, le emozioni e il mondo che ci circonda.</p>
+                    <div class="card p-6">
+                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+2" alt="Diploma 2" class="mx-auto mb-4 rounded-md">
+                        <h3 class="text-xl font-semibold mb-2">Certificazione Istruttore Mindfulness</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
-                    <div class="card p-8">
-                        <div class="text-4xl mb-4">❤️</div>
-                        <h3 class="text-xl font-semibold mb-2">Attitudine</h3>
-                        <p>Un modo di essere aperto e curioso, accogliendo ogni esperienza con gentilezza e senza giudicare, coltivando pazienza e fiducia in se stessi.</p>
+                    <div class="card p-6">
+                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+3" alt="Diploma 3" class="mx-auto mb-4 rounded-md">
+                        <h3 class="text-xl font-semibold mb-2">Specializzazione Meditazione Guidata</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
+                    </div>
+                     <div class="card p-6">
+                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+4" alt="Diploma 4" class="mx-auto mb-4 rounded-md">
+                        <h3 class="text-xl font-semibold mb-2">Corso di Formazione in Educazione Emotiva</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="benefits" class="py-16 bg-white">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">I Doni della Mindfulness per i Giovani</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La ricerca ci mostra i numerosi doni che la mindfulness offre a bambini e adolescenti. Questa pratica supporta il loro sviluppo e benessere, arricchendo ogni aspetto della loro vita quotidiana.</p>
-                </div>
-                <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <section id="experience" class="py-16">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Le Mie Esperienze di Insegnamento</h2>
+                <div class="grid md:grid-cols-2 gap-8">
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Un Cuore Sereno</h3>
-                        <p class="text-gray-600">La mindfulness aiuta a coltivare un cuore più calmo, riducendo l'ansia, lo stress e quel fastidioso senso di colpa, specialmente quando si affrontano momenti di disagio emotivo.</p>
+                        <h3 class="text-xl font-semibold mb-2">Corsi di Yoga per Bambini</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Una Mente Brillante</h3>
-                        <p class="text-gray-600">Si osservano miglioramenti nelle capacità di attenzione, memoria e nel prendere decisioni. Le abilità cognitive ed emotive fioriscono grazie alla pratica.</p>
+                        <h3 class="text-xl font-semibold mb-2">Workshop di Mindfulness per Famiglie</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Padrone di Sé</h3>
-                        <p class="text-gray-600">La mindfulness insegna a regolare le proprie emozioni e i comportamenti. I più piccoli imparano a essere più gentili e a gestire meglio le emozioni, riducendo l'iperattività.</p>
+                        <h3 class="text-xl font-semibold mb-2">Programmi di Meditazione nelle Scuole</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Focalizzazione e Sogni Tranquilli</h3>
-                        <p class="text-gray-600">Un valido aiuto per migliorare la concentrazione e dire addio alla procrastinazione. Pratiche come il "body scan" favoriscono il rilassamento e un sonno più riposante.</p>
+                        <h3 class="text-xl font-semibold mb-2">Sessioni Private e di Gruppo</h3>
+                        <p class="text-gray-600">testotestotestotesto</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="evidence" class="py-16">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">L'Efficacia degli Interventi</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La ricerca sulla mindfulness continua a rivelare il potenziale straordinario di questi interventi. Questa sezione evidenzia come diversi tipi di pratica possano promuovere il benessere emotivo e la gestione dello stress nei nostri giovani.</p>
-                </div>
-                <div class="grid lg:grid-cols-1 gap-12 items-start">
-                    <div>
-                        <h3 class="text-xl font-semibold text-center mb-4">I Percorsi della Mindfulness: Un Confronto</h3>
-                        <p class="text-center text-gray-600 mb-6">Questo grafico illustra il miglioramento medio osservato in ansia, benessere emotivo e stress dopo un percorso di mindfulness, confrontato con una situazione senza intervento specifico.</p>
-                        <div class="chart-container">
-                            <canvas id="effectivenessChart"></canvas>
-                        </div>
-                        <p class="text-center text-sm text-gray-500 mt-2">
-                            *La "Dimensione dell'Effetto (d di Cohen)" è un modo per misurare la forza di un intervento. Valori più alti indicano un impatto più forte, mentre valori vicini allo zero indicano un beneficio minimo o nullo.*
-                        </p>
-                        <div class="text-center text-sm text-gray-500 mt-2">
-                            Fonti: <a href="https://www.mdpi.com/2036-7503/17/3/59" class="source-link" target="_blank">Studio MDPI 2025</a>, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6546608/" class="source-link" target="_blank">Revisione Cognizione PubMed Central</a>, <a href="https://www.researchgate.net/publication/332160762_Mindfulness-based_interventions_for_adolescent_health" class="source-link" target="_blank">Revisione Adolescenziale ResearchGate</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section id="factors" class="py-16 bg-white">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Fattori che Fanno la Differenza</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Il successo di un percorso di mindfulness è un'armonia di fattori che ne amplificano la magia. Esplora il diagramma interattivo sottostante per scoprire come l'età, l'esperienza di chi guida e il calore della famiglia siano ingredienti fondamentali per risultati eccezionali.</p>
-                </div>
-                <div class="diagram-container max-w-3xl mx-auto">
-                    <!-- Nodes for the spider web diagram -->
-                    <div id="node-age" class="factor-node node-teal" data-factor="age">
-                        <span class="node-title">Età e Sviluppo</span>
-                        <span class="node-description"></span>
-                    </div>
-                    <div id="node-instructor" class="factor-node node-orange" data-factor="instructor">
-                        <span class="node-title">Chi Guida il Percorso</span>
-                        <span class="node-description"></span>
-                    </div>
-                    <div id="node-parents" class="factor-node node-purple" data-factor="parents">
-                        <span class="node-title">Il Calore della Famiglia</span>
-                        <span class="node-description"></span>
-                    </div>
-                    <div id="node-school" class="factor-node node-red" data-factor="school">
-                        <span class="node-title">Supporto Scolastico</span>
-                        <span class="node-description"></span>
-                    </div>
-                    <div id="node-peers" class="factor-node node-blue" data-factor="peers">
-                        <span class="node-title">L'Influenza dei Pari</span>
-                        <span class="node-description"></span>
-                    </div>
-                    
-                    <!-- Lines for visual connection -->
-                    <div class="diagram-line" id="line-age"></div>
-                    <div class="diagram-line" id="line-instructor"></div>
-                    <div class="diagram-line" id="line-parents"></div>
-                    <div class="diagram-line" id="line-school"></div>
-                    <div class="diagram-line" id="line-peers"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="sources" class="py-16">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Le Nostre Fonti di Ispirazione</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Crediamo nella trasparenza e nella solidità scientifica. Qui trovi l'elenco completo delle ricerche e degli studi che hanno ispirato e guidato la creazione di questo percorso.</p>
-                </div>
-                <div class="text-sm text-gray-700 mt-4 max-w-3xl mx-auto">
-                    <ol class="list-decimal list-inside source-list">
-                        <li><strong>Mindfulness per Giovani: La Grande Revisione del 2025 (MDPI)</strong><br>
-                            *Mindfulness-Based Interventions for Children and Adolescents: A Systematic Review and Meta-Analysis of Randomized Controlled Trials*. Pubblicato su MDPI, 14 Maggio 2025. <a href="https://www.mdpi.com/2036-7503/17/3/59" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>Interventi di Mindfulness per i Giovani: Una Meta-analisi Cruciale (ResearchGate)</strong><br>
-                            *Mindfulness Interventions with Youth: A Meta-Analysis*. Pubblicato su ResearchGate. <a href="https://www.researchgate.net/publication/259842622_Mindfulness_Interventions_with_Youth_A_Meta-Analysis" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>La Terapia Cognitiva Basata sulla Mindfulness: Il Contributo del Prof. Zindel Segal (Università di Toronto–Scarborough)</strong><br>
-                            Articolo su *Mindfulness-Based Cognitive Therapy* di Zindel Segal. <a href="https://www.mindful.org/10-mindfulness-researchers-know/" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>MBCT per Bambini a Scuola: Una Revisione Sistematica (PMC 2022)</strong><br>
-                            *Mindfulness-Based Cognitive Therapy for Children in School Settings*. Revisione Sistematica pubblicata su PMC, Giugno-Novembre 2022. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10217750/" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>La Salute Adolescenziale e la Mindfulness: Una Revisione Fondamentale (Wolters Kluwer Health, Inc.)</strong><br>
-                            *Mindfulness-based interventions for adolescent health*. Revisione pubblicata su ResearchGate, Aprile 2019. <a href="https://www.researchgate.net/publication/332160762_Mindfulness-based_interventions_for_adolescent_health" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>I Giganti della Ricerca in Mindfulness: Patricia Jennings e Altri Pionieri (Mindful.org)</strong><br>
-                            Articolo *10 Mindfulness Researchers to Know* su Mindful.org, con contributi di Patricia Jennings (Università della Virginia), Michael Mrazek (UC Santa Barbara) e altri. <a href="https://www.mindful.org/10-mindfulness-researchers-know/" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>Mindfulness nell'Età Evolutiva: Una Prospettiva di Sviluppo (ResearchGate)</strong><br>
-                            *Systematic Review of Mindfulness-Based Interventions in Child-Adolescent Population: A Developmental Perspective*. Revisione Sistematica pubblicata su ResearchGate. <a href="https://www.researchgate.net/publication/36284128_Systematic_Review_of_Mindfulness-Based_Interventions_in_Child-Adolescent_Population_A_Developmental_Perspective" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>Interventi di Mindfulness per i Giovani: La Meta-analisi di Consensus</strong><br>
-                            *Mindfulness-based interventions for youth: a meta-analysis*. Pubblicato su Consensus.app. <a href="https://consensus.app/search/mindfulness-based-interventions-for-youth-a-meta-a/YSt8cbXhS_egau0SJ4jWbA/" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>Cognizione e Salute Mentale: Una Meta-analisi sugli MBIs (PubMed Central)</strong><br>
-                            *Research Review: The effects of mindfulness‐based interventions on cognition and mental health in children and adolescents – a meta‐analysis of randomized controlled trials*. Pubblicato su PubMed Central. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6546608/" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>MBSR per i Giovani Urbani: Lo Studio Rivoluzionario della Johns Hopkins</strong><br>
-                            *MBSR for Urban Youth* di Sibinga, E.M.S. et al. Johns Hopkins School of Medicine, Johns Hopkins Bloomberg School of Public Health. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3157305/" class="source-link" target="_blank">Link</a></li>
-                        <li><strong>Mindfulness nelle Scuole: Il Progetto Globale MiSP</strong><br>
-                            Informazioni sul *Mindfulness in Schools Project (MiSP)*. <a href="https://mindfulnessinschools.org/" class="source-link" target="_blank">Link</a></li>
-                    </ol>
+        <section id="social" class="py-16 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Connettiamoci!</h2>
+                <p class="text-lg text-gray-600 mb-8">Seguimi sui miei canali social per rimanere aggiornato sulle ultime novità e ispirazioni.</p>
+                <div class="flex justify-center space-x-6">
+                    <a href="https://www.instagram.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-pink-500">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.792.058.971.045 1.77.202 2.41.458.64.257 1.173.607 1.618 1.053.445.445.796.978 1.053 1.618.256.64.413 1.439.458 2.41.045 1.008.058 1.358.058 3.792s-.013 2.784-.058 3.792c-.045.971-.202 1.77-.458 2.41-.257.64-.607 1.173-1.053 1.618-.445.445-.978.796-1.618 1.053-.64.256-1.439.413-2.41.458-1.008.045-1.358.058-3.792.058s-2.784-.013-3.792-.058c-.971-.045-1.77-.202-2.41-.458-.64-.257-1.173-.607-1.618-1.053-.445-.445-.796-.978-1.053-1.618-.256-.64-.413-1.439-.458-2.41-.045-1.008-.058-1.358-.058-3.792s.013-2.784.058-3.792c.045-.971.202-1.77.458-2.41.257-.64.607-1.173 1.053-1.618.445-.445.978-.796 1.618-1.053.64-.256 1.439-.413 2.41-.458C9.537 2.013 9.887 2 12.315 2zm0 2.16c-2.727 0-3.064.01-4.122.055-.91.041-1.49.174-1.873.32-.383.145-.668.347-.91.59-.242.242-.445.527-.59.91-.146.383-.279.963-.32 1.873-.046 1.058-.055 1.395-.055 4.122s.01 3.064.055 4.122.174 1.49.32 1.873.347.668.59.91.527.445.91.59.963.279 1.873.32 1.058.046 4.122.055 3.064-.01 4.122-.055.963-.174 1.873-.32.668-.347.91-.59.445-.527.59-.91.279-.963.32-1.873.046-1.058.055-4.122s-.01-3.064-.055-4.122-.174-1.49-.32-1.873-.347-.668-.59-.91-.527-.445-.91-.59-.963-.279-1.873-.32-1.058-.046-4.122-.055zM12.315 6.84a5.475 5.475 0 100 10.95 5.475 5.475 0 000-10.95zM12.315 8.91a3.405 3.405 0 110 6.81 3.405 3.405 0 010-6.81zm5.337-3.24a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="https://www.facebook.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-blue-600">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.505 1.492-3.89 3.776-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33V22H12c5.523 0 10-4.477 10-10z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-blue-700">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V8h3v11zM6.5 6.73c-.96 0-1.75-.79-1.75-1.75S5.54 3.23 6.5 3.23s1.75.79 1.75 1.75S7.46 6.73 6.5 6.73zM19 19h-3v-4.7c0-1.12-.02-2.56-1.56-2.56-1.57 0-1.81-1.22-1.81-2.49V8h-3v11h3v-4.5c0-.85.06-1.55.23-2.1.17-.55.45-.96.86-1.28.41-.32.93-.49 1.54-.49.61 0 1.13.17 1.54.49.41.32.69.73.86 1.28.17.55.23 1.25.23 2.1V19z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </section>
@@ -348,8 +172,7 @@
 
     <footer class="bg-gray-800 text-white py-8">
         <div class="container mx-auto px-6 text-center">
-            <p>&copy; 2025 Mindfulness per i Giovani. Realizzato da Caterina Figlioli.</p>
-            <p class="text-sm text-gray-400 mt-2">Ispirato dalle più recenti evidenze scientifiche.</p>
+            <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
         </div>
     </footer>
 
@@ -361,288 +184,6 @@
             mobileMenuButton.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
             });
-            
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('main section');
-
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.4
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        navLinks.forEach(link => {
-                            link.classList.remove('active');
-                            if (link.getAttribute('href').substring(1) === entry.target.id) {
-                                link.classList.add('active');
-                            }
-                        });
-                    }
-                });
-            }, observerOptions);
-
-            sections.forEach(section => {
-                observer.observe(section);
-            });
-
-            const effectivenessCtx = document.getElementById('effectivenessChart').getContext('2d');
-            new Chart(effectivenessCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ansia', 'Benessere Emotivo', 'Stress'],
-                    datasets: [
-                        {
-                            label: 'MBCT (Terapia Cognitiva)',
-                            data: [0.35, 0.38, 0.4],
-                            backgroundColor: 'rgba(74, 222, 128, 0.6)',
-                            borderColor: 'rgba(74, 222, 128, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'MBSR (Riduzione Stress)',
-                            data: [0.22, 0.25, 0.28],
-                            backgroundColor: 'rgba(251, 146, 60, 0.6)',
-                            borderColor: 'rgba(251, 146, 60, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Nessun Intervento / Baseline',
-                            data: [0.05, 0.05, 0.05], /* Hypothetical small effect for baseline */
-                            backgroundColor: 'rgba(170, 170, 170, 0.6)',
-                            borderColor: 'rgba(170, 170, 170, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 0.6,
-                            title: {
-                                display: true,
-                                text: 'Dimensione dell\'Effetto (d di Cohen)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                             callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    let value = context.raw;
-                                    let effectDescription = '';
-                                    if (context.dataset.label === 'Nessun Intervento / Baseline') {
-                                        effectDescription = ' (Effetto minimo o nullo)';
-                                    } else if (value >= 0.35) {
-                                        effectDescription = ' (Effetto Moderato)';
-                                    } else {
-                                        effectDescription = ' (Effetto Piccolo)';
-                                    }
-                                    return `${label} ${value}${effectDescription}`;
-                                }
-                            }
-                        },
-                        legend: {
-                            position: 'top',
-                        },
-                    }
-                }
-            });
-
-            // Data for interactive factor details
-            const factorDetails = {
-                age: {
-                    title: "Età e Sviluppo",
-                    description: "I benefici della mindfulness sono più evidenti nella tarda adolescenza (15-18 anni). Tuttavia, con adattamenti speciali e un linguaggio adatto, anche i bambini più piccoli possono godere di vantaggi duraturi e meravigliosi, sviluppando abilità preziose fin dalla tenera età."
-                },
-                instructor: {
-                    title: "Chi Guida il Percorso",
-                    description: "L'esperienza di chi guida il percorso è fondamentale. Gli interventi condotti da esperti con una profonda e autentica esperienza nella mindfulness portano a risultati eccezionalmente brillanti, massimizzando i doni per ogni partecipante e creando un ambiente di apprendimento più ricco e profondo."
-                },
-                parents: {
-                    title: "Il Calore della Famiglia",
-                    description: "Il coinvolgimento amorevole e attivo dei genitori è un tesoro prezioso per un successo che dura nel tempo. Quando la pratica della mindfulness si integra armoniosamente sia a casa che a scuola, il benessere del bambino fiorisce in modo più completo e profondo, creando un ambiente di supporto costante."
-                },
-                school: {
-                    title: "Supporto Scolastico",
-                    description: "Le scuole giocano un ruolo cruciale nel promuovere la mindfulness. L'integrazione di pratiche di consapevolezza nell'ambiente scolastico può migliorare il clima di classe, ridurre il bullismo e favorire l'empatia tra gli studenti, contribuendo a un benessere olistico."
-                },
-                peers: {
-                    title: "L'Influenza dei Pari",
-                    description: "L'ambiente sociale e l'influenza dei pari possono avere un impatto significativo sull'adozione e sul mantenimento delle pratiche di mindfulness. Un gruppo di pari supportivo e coinvolto può rafforzare i benefici e rendere il percorso più piacevole e duraturo per i giovani."
-                }
-            };
-
-            const factorNodes = document.querySelectorAll('.factor-node[data-factor]');
-            const diagramContainer = document.querySelector('.diagram-container');
-
-            let activeFactorNode = null; // Track which node is currently active
-
-            const setNodeContent = (node, isActive) => {
-                const titleSpan = node.querySelector('.node-title');
-                const descriptionSpan = node.querySelector('.node-description');
-                const data = factorDetails[node.dataset.factor];
-
-                if (isActive) {
-                    titleSpan.style.display = 'none';
-                    descriptionSpan.textContent = data.description;
-                    descriptionSpan.style.display = 'block';
-                    descriptionSpan.style.opacity = 1;
-                } else {
-                    titleSpan.style.display = 'block';
-                    titleSpan.textContent = data.title;
-                    descriptionSpan.textContent = '';
-                    descriptionSpan.style.display = 'none';
-                    descriptionSpan.style.opacity = 0;
-                }
-            };
-
-            const updateDiagramLayout = () => {
-                const containerRect = diagramContainer.getBoundingClientRect();
-                const centerX = containerRect.width / 2;
-                const centerY = containerRect.height / 2;
-
-                const defaultRadius = Math.min(centerX, centerY) * 0.5; // Radius when no node is active
-                const inactiveRadius = Math.min(centerX, centerY) * 0.8; // Radius for inactive nodes when one is active
-
-                const defaultNodeSize = 120;
-                const activeNodeSize = 280;
-                const inactiveNodeSize = 80;
-
-                const currentFactorNodes = Array.from(factorNodes);
-                const numNodes = currentFactorNodes.length;
-
-                currentFactorNodes.forEach((node, index) => {
-                    let x, y, size, currentRadius;
-
-                    if (node === activeFactorNode) {
-                        // This node is active, move it to the center and make it large
-                        x = centerX;
-                        y = centerY;
-                        size = activeNodeSize;
-                        node.classList.add('active');
-                        node.style.zIndex = 20;
-                        setNodeContent(node, true);
-                    } else {
-                        // All other nodes (including previously active if now inactive)
-                        // are small and positioned on the outer circle
-                        size = inactiveNodeSize; // All inactive nodes are small
-                        currentRadius = inactiveRadius; // All inactive nodes are on the outer radius
-                        node.classList.remove('active');
-                        node.style.zIndex = 10;
-                        setNodeContent(node, false);
-
-                        // Calculate angle for positioning
-                        // If there's an active node, distribute others around it.
-                        // If no active node, distribute all evenly.
-                        let angle;
-                        if (activeFactorNode) {
-                            const inactiveNodes = currentFactorNodes.filter(n => n !== activeFactorNode);
-                            const inactiveIndex = inactiveNodes.indexOf(node);
-                            const numInactive = inactiveNodes.length;
-                            // Distribute inactive nodes evenly around the outer circle
-                            angle = (inactiveIndex / numInactive) * 2 * Math.PI - (Math.PI / 2); // Start from top
-                        } else {
-                            // No active node, distribute all nodes evenly in a circle
-                            angle = (index / numNodes) * 2 * Math.PI - (Math.PI / 2); // Start from top
-                            size = defaultNodeSize; // Revert to default size if no active node
-                            currentRadius = defaultRadius; // Revert to default radius if no active node
-                        }
-                        
-                        x = centerX + currentRadius * Math.cos(angle);
-                        y = centerY + currentRadius * Math.sin(angle);
-                    }
-
-                    node.style.width = `${size}px`;
-                    node.style.height = `${size}px`;
-                    node.style.left = `${x - size / 2}px`;
-                    node.style.top = `${y - size / 2}px`;
-                });
-
-                // Update lines connecting nodes
-                // Remove all existing lines first
-                document.querySelectorAll('.diagram-line').forEach(line => line.remove());
-
-                // Lines always connect from each node to the conceptual center of the container
-                const centerOfContainerX = centerX;
-                const centerOfContainerY = centerY;
-
-                currentFactorNodes.forEach(node => {
-                    const nodeCx = node.offsetLeft + node.offsetWidth / 2;
-                    const nodeCy = node.offsetTop + node.offsetHeight / 2;
-
-                    const dx = centerOfContainerX - nodeCx;
-                    const dy = centerOfContainerY - nodeCy;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-                    const line = document.createElement('div');
-                    line.classList.add('diagram-line');
-                    diagramContainer.appendChild(line);
-
-                    line.style.width = `${distance}px`;
-                    line.style.left = `${nodeCx}px`;
-                    line.style.top = `${nodeCy}px`;
-                    line.style.transform = `rotate(${angle}deg)`;
-                    line.style.transformOrigin = `0 50%`;
-                });
-            };
-
-            // Event Listeners for Factor Nodes
-            factorNodes.forEach(node => {
-                node.addEventListener('click', () => {
-                    if (activeFactorNode === node) {
-                        // If clicking the currently active node, deactivate it
-                        activeFactorNode = null;
-                    } else {
-                        // Set this node as active
-                        activeFactorNode = node;
-                    }
-                    updateDiagramLayout(); // Recalculate and apply layout
-                });
-            });
-
-            // Initial layout and update on resize
-            window.addEventListener('resize', updateDiagramLayout);
-            setTimeout(updateDiagramLayout, 100); // Small delay to ensure elements are rendered correctly on load
-
-            // Zoom and Fade effect for cards
-            const cards = document.querySelectorAll('.card');
-
-            const applyCardEffect = () => {
-                const viewportCenter = window.innerHeight / 2;
-                cards.forEach(card => {
-                    const cardRect = card.getBoundingClientRect();
-                    const cardCenter = cardRect.top + cardRect.height / 2;
-                    const distance = Math.abs(viewportCenter - cardCenter);
-                    
-                    // Normalize distance to a 0-1 range, where 0 is center and 1 is edge
-                    const maxDistance = window.innerHeight / 2 + cardRect.height / 2;
-                    const normalizedDistance = Math.min(1, distance / maxDistance);
-
-                    // Calculate scale: closer to center = scale 1, further = scale 0.9
-                    const scale = 1 - (normalizedDistance * 0.1);
-                    
-                    // Calculate opacity: closer to center = opacity 1, further = opacity 0.7
-                    const opacity = 1 - (normalizedDistance * 0.3);
-
-                    card.style.transform = `scale(${scale})`;
-                    card.style.opacity = opacity;
-                });
-            };
-
-            window.addEventListener('scroll', applyCardEffect);
-            window.addEventListener('resize', applyCardEffect);
-            applyCardEffect();
         });
     </script>
 </body>
