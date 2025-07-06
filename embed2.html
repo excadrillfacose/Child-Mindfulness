@@ -11,19 +11,21 @@
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Global variables for Firebase config and app ID
-       const firebaseConfig = {
-  apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAAqPJUTg0t8E",
-  authDomain: "mindfulnesscaterina.firebaseapp.com",
-  projectId: "mindfulnesscaterina", // Questo è il tuo appId per la mia variabile __app_id
-  storageBucket: "mindfulnesscaterina.firebasestorage.app",
-  messagingSenderId: "453448299797",
-  appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
-  measurementId: "G-1EKEWEBJDH"
-};
-const initialAuthToken = null;
+        // Your Firebase configuration (replace with your actual values)
+        const appId = 'mindfulnesscaterina'; // Your projectId
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAAqPJUTg0t8E",
+          authDomain: "mindfulnesscaterina.firebaseapp.com",
+          projectId: "mindfulnesscaterina",
+          storageBucket: "mindfulnesscaterina.firebasestorage.app",
+          messagingSenderId: "453448299797",
+          appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
+          measurementId: "G-1EKEWEBJDH"
+        };
+        const initialAuthToken = null; // Leave as null if not using custom tokens
+
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -31,36 +33,59 @@ const initialAuthToken = null;
         // Elements to control visibility
         const videoGallery = document.getElementById('video-gallery');
         const loginPrompt = document.getElementById('login-prompt');
-        const userEmailDisplay = document.getElementById('user-email-display-nav');
-        const logoutButtonNav = document.getElementById('logout-button-nav');
-        const authLinksNav = document.getElementById('auth-links-nav');
+        const pageMessageBox = document.getElementById('page-message-box'); // Renamed for clarity
 
-        // Function to show/hide messages (simple for this page)
+        // Function to show/hide messages
         const showMessage = (message, type = 'info') => {
-            const messageBox = document.getElementById('page-message-box');
-            messageBox.textContent = message;
-            messageBox.className = `p-3 rounded-md mb-4 text-center ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
-            messageBox.style.display = 'block';
+            pageMessageBox.textContent = message;
+            pageMessageBox.className = `p-3 rounded-md mb-4 text-center ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            pageMessageBox.style.display = 'block';
             setTimeout(() => {
-                messageBox.style.display = 'none';
+                pageMessageBox.style.display = 'none';
             }, 5000);
+        };
+
+        // Function to update header UI based on auth state
+        const updateHeaderAuthUI = (user) => {
+            const authLinksNav = document.getElementById('auth-links-nav');
+            const userProfileNav = document.getElementById('user-profile-nav');
+            const userEmailDisplayNav = document.getElementById('user-email-display-nav');
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            const mobileAuthLinks = document.getElementById('mobile-auth-links');
+            const mobileUserProfile = document.getElementById('mobile-user-profile');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+            if (user && !user.isAnonymous) {
+                authLinksNav.classList.add('hidden');
+                userProfileNav.classList.remove('hidden');
+                userEmailDisplayNav.textContent = user.email || 'Profilo';
+                
+                mobileAuthLinks.classList.add('hidden');
+                mobileUserProfile.classList.remove('hidden');
+                logoutButtonMobile.classList.remove('hidden');
+            } else {
+                authLinksNav.classList.remove('hidden');
+                userProfileNav.classList.add('hidden');
+                userEmailDisplayNav.textContent = '';
+
+                mobileAuthLinks.classList.remove('hidden');
+                mobileUserProfile.classList.add('hidden');
+                logoutButtonMobile.classList.add('hidden');
+            }
         };
 
         // Handle authentication state changes
         onAuthStateChanged(auth, async (user) => {
+            updateHeaderAuthUI(user); // Update the main header
+
             if (user && !user.isAnonymous) { // User is logged in with email/password
                 videoGallery.classList.remove('hidden');
                 loginPrompt.classList.add('hidden');
-                userEmailDisplay.textContent = user.email;
-                logoutButtonNav.classList.remove('hidden');
-                authLinksNav.classList.add('hidden'); // Hide login/register links
                 showMessage('Benvenuto! Puoi ora accedere ai video.', 'success');
             } else { // User is not logged in or is anonymous
                 videoGallery.classList.add('hidden');
                 loginPrompt.classList.remove('hidden');
-                userEmailDisplay.textContent = '';
-                logoutButtonNav.classList.add('hidden');
-                authLinksNav.classList.remove('hidden'); // Show login/register links
+                // showMessage('Accedi o registrati per vedere i video.', 'info'); // Avoid showing on every page load
             }
         });
 
@@ -79,16 +104,56 @@ const initialAuthToken = null;
                 await signInAnonymously(auth);
                 console.log("Signed in anonymously.");
             }
-        });
 
-        // Handle Logout from nav bar
-        logoutButtonNav.addEventListener('click', async () => {
-            try {
-                await auth.signOut();
-                showMessage('Disconnessione avvenuta con successo.', 'info');
-            } catch (error) {
-                console.error("Error during logout:", error);
-                showMessage(`Errore durante la disconnessione: ${error.message}`, 'error');
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Logout functionality for desktop dropdown
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            if (logoutButtonNav) {
+                logoutButtonNav.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        // UI will be updated by onAuthStateChanged listener
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Logout functionality for mobile menu
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        mobileMenu.classList.add('hidden'); // Hide mobile menu after logout
+                        // UI will be updated by onAuthStateChanged listener
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Dropdown toggle for profile management
+            const dropdownButton = document.getElementById('user-email-display-nav');
+            const dropdownMenu = document.getElementById('dropdown-menu-nav');
+            if (dropdownButton && dropdownMenu) {
+                dropdownButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent closing immediately if clicked on button
+                    dropdownMenu.classList.toggle('hidden');
+                });
+
+                // Close dropdown if clicked outside
+                window.addEventListener('click', (event) => {
+                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
             }
         });
     </script>
@@ -127,13 +192,25 @@ const initialAuthToken = null;
                 <a href="index.html" class="nav-link py-2">Home</a>
                 <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
                 <a href="embed2.html" class="nav-link py-2 active">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2">Blog</a>
+                
+                <!-- Auth Links (hidden when logged in) -->
                 <div id="auth-links-nav" class="flex space-x-8">
                     <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
                 </div>
-                <div id="user-profile-nav" class="relative group">
-                    <button id="user-email-display-nav" class="nav-link py-2 hidden"></button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
-                        <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hidden">Esci</button>
+
+                <!-- User Profile (hidden when logged out/anonymous) -->
+                <div id="user-profile-nav" class="relative group hidden">
+                    <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
+                        <img src="https://placehold.co/32x32/A0AEC0/FFFFFF?text=CF" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <span class="hidden md:inline">Profilo</span>
+                    </button>
+                    <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
+                            <a href="embed2.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">I Miei Corsi</a>
+                            <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Esci</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,8 +224,16 @@ const initialAuthToken = null;
             <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
             <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
             <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
-            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
-            <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8] hidden">Esci</button>
+            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            
+            <!-- Mobile Auth Links -->
+            <div id="mobile-auth-links">
+                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
+            </div>
+            <!-- Mobile User Profile (logout button only for simplicity) -->
+            <div id="mobile-user-profile" class="hidden">
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+            </div>
         </div>
     </header>
 
@@ -211,29 +296,5 @@ const initialAuthToken = null;
             <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
         </div>
     </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const logoutButtonMobile = document.getElementById('logout-button-mobile');
-
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            // Handle Logout from mobile nav bar
-            logoutButtonMobile.addEventListener('click', async () => {
-                try {
-                    await auth.signOut();
-                    showMessage('Disconnessione avvenuta con successo.', 'info');
-                    mobileMenu.classList.add('hidden'); // Hide mobile menu after logout
-                } catch (error) {
-                    console.error("Error during logout:", error);
-                    showMessage(`Errore durante la disconnessione: ${error.message}`, 'error');
-                }
-            });
-        });
-    </script>
 </body>
 </html>
