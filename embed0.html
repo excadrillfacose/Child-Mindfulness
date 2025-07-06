@@ -15,9 +15,16 @@
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for Firebase config and app ID
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const firebaseConfig = {
+  apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAAqPJUTg0t8E",
+  authDomain: "mindfulnesscaterina.firebaseapp.com",
+  projectId: "mindfulnesscaterina", // Questo è il tuo appId per la mia variabile __app_id
+  storageBucket: "mindfulnesscaterina.firebasestorage.app",
+  messagingSenderId: "453448299797",
+  appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
+  measurementId: "G-1EKEWEBJDH"
+};
+const initialAuthToken = null;
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
