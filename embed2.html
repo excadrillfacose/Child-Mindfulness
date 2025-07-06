@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Gratuiti di Mindfulness</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Global variables for Firebase config and app ID
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Elements to control visibility
+        const videoGallery = document.getElementById('video-gallery');
+        const loginPrompt = document.getElementById('login-prompt');
+        const userEmailDisplay = document.getElementById('user-email-display-nav');
+        const logoutButtonNav = document.getElementById('logout-button-nav');
+        const authLinksNav = document.getElementById('auth-links-nav');
+
+        // Function to show/hide messages (simple for this page)
+        const showMessage = (message, type = 'info') => {
+            const messageBox = document.getElementById('page-message-box');
+            messageBox.textContent = message;
+            messageBox.className = `p-3 rounded-md mb-4 text-center ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        };
+
+        // Handle authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            if (user && !user.isAnonymous) { // User is logged in with email/password
+                videoGallery.classList.remove('hidden');
+                loginPrompt.classList.add('hidden');
+                userEmailDisplay.textContent = user.email;
+                logoutButtonNav.classList.remove('hidden');
+                authLinksNav.classList.add('hidden'); // Hide login/register links
+                showMessage('Benvenuto! Puoi ora accedere ai video.', 'success');
+            } else { // User is not logged in or is anonymous
+                videoGallery.classList.add('hidden');
+                loginPrompt.classList.remove('hidden');
+                userEmailDisplay.textContent = '';
+                logoutButtonNav.classList.add('hidden');
+                authLinksNav.classList.remove('hidden'); // Show login/register links
+            }
+        });
+
+        // Initial sign-in with custom token or anonymously
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (initialAuthToken) {
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Signed in with custom token.");
+                } catch (error) {
+                    console.error("Error signing in with custom token:", error);
+                    showMessage(`Errore nell'accesso automatico: ${error.message}`, 'error');
+                    await signInAnonymously(auth); // Fallback to anonymous
+                }
+            } else {
+                await signInAnonymously(auth);
+                console.log("Signed in anonymously.");
+            }
+        });
+
+        // Handle Logout from nav bar
+        logoutButtonNav.addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                showMessage('Disconnessione avvenuta con successo.', 'info');
+            } catch (error) {
+                console.error("Error during logout:", error);
+                showMessage(`Errore durante la disconnessione: ${error.message}`, 'error');
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #4A4A4A;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #5A67D8;
+            border-bottom-color: #5A67D8;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2">Home</a>
+                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed2.html" class="nav-link py-2 active">Video Gratuiti</a>
+                <div id="auth-links-nav" class="flex space-x-8">
+                    <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
+                </div>
+                <div id="user-profile-nav" class="relative group">
+                    <button id="user-email-display-nav" class="nav-link py-2 hidden"></button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
+                        <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hidden">Esci</button>
+                    </div>
+                </div>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
+            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
+            <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8] hidden">Esci</button>
+        </div>
+    </header>
+
+    <main class="py-16">
+        <div class="container mx-auto px-6">
+            <div id="page-message-box" class="hidden"></div>
+
+            <div id="login-prompt" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md text-center hidden">
+                <p class="font-bold text-lg mb-2">Contenuto Riservato!</p>
+                <p>Per accedere ai video gratuiti, è necessario <a href="embed0.html" class="font-bold underline">Accedere o Registrarsi</a>.</p>
+            </div>
+
+            <div id="video-gallery" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">I Tuoi Video Gratuiti</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-12">Benvenuto! Qui troverai una selezione di video di mindfulness per iniziare il tuo percorso di consapevolezza. Scegli il tuo momento e buona pratica!</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card p-4">
+                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                            <p class="text-gray-500">Video 1 (Placeholder)</p>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Introduzione alla Mindfulness</h3>
+                        <p class="text-gray-600">Un primo passo per comprendere le basi della consapevolezza e come integrarla nella tua giornata.</p>
+                    </div>
+                    <div class="card p-4">
+                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                            <p class="text-gray-500">Video 2 (Placeholder)</p>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Meditazione Guidata per la Calma</h3>
+                        <p class="text-gray-600">Una sessione guidata per trovare un momento di pace e ridurre lo stress.</p>
+                    </div>
+                    <div class="card p-4">
+                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                            <p class="text-gray-500">Video 3 (Placeholder)</p>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Mindfulness in Movimento</h3>
+                        <p class="text-gray-600">Scopri come portare la consapevolezza nel movimento quotidiano con semplici esercizi.</p>
+                    </div>
+                    <div class="card p-4">
+                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                            <p class="text-gray-500">Video 4 (Placeholder)</p>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Consapevolezza del Respiro</h3>
+                        <p class="text-gray-600">Un esercizio fondamentale per riconnettersi con il proprio respiro e il momento presente.</p>
+                    </div>
+                    <div class="card p-4">
+                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                            <p class="text-gray-500">Video 5 (Placeholder)</p>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Mindfulness per il Sonno</h3>
+                        <p class="text-gray-600">Pratiche rilassanti per preparare la mente e il corpo a un riposo sereno.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Handle Logout from mobile nav bar
+            logoutButtonMobile.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    showMessage('Disconnessione avvenuta con successo.', 'info');
+                    mobileMenu.classList.add('hidden'); // Hide mobile menu after logout
+                } catch (error) {
+                    console.error("Error during logout:", error);
+                    showMessage(`Errore durante la disconnessione: ${error.message}`, 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
