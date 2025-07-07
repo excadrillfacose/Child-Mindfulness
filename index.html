@@ -128,11 +128,11 @@
 
             // Slideshow logic
             const slides = [
-                { src: "./attestato1.png", title: "Diploma Yoga per Bambini", description: "testotestotestotesto" },
-                { src: "./attestato2.png", title: "Certificazione Istruttore Mindfulness", description: "testotestotestotesto" },
-                { src: "./attestato3.png", title: "Specializzazione Meditazione Guidata", description: "testotestotestotesto" },
-                { src: "./attestato4.png", title: "Corso di Formazione in Educazione Emotiva", description: "testotestotestotesto" },
-                { src: "./attestato5.png", title: "Master in Terapie Olistiche", description: "testotestotestotesto" } // Added a 5th attestato
+                { src: "./attestato1.png", title: "Diploma Yoga per Bambini", description: "Certificazione riconosciuta per l'insegnamento dello yoga ai più piccoli, con focus su tecniche ludiche e adatte all'età." },
+                { src: "./attestato2.png", title: "Certificazione Istruttore Mindfulness", description: "Attestato professionale che certifica la competenza nell'insegnamento delle pratiche di mindfulness per il benessere psicofisico." },
+                { src: "./attestato3.png", title: "Specializzazione Meditazione Guidata", description: "Corso avanzato sulla conduzione di sessioni di meditazione guidata, con approfondimenti su diverse tecniche e pubblici." },
+                { src: "./attestato4.png", title: "Corso di Formazione in Educazione Emotiva", description: "Qualifica in educazione emotiva per supportare lo sviluppo dell'intelligenza emotiva in bambini e adolescenti." },
+                { src: "./attestato5.png", title: "Master in Terapie Olistiche", description: "Master universitario in terapie olistiche, integrando approcci complementari per il benessere integrale della persona." }
             ];
             let currentSlideIndex = 0;
             const slideshowContainer = document.getElementById('slideshow-container');
@@ -142,66 +142,85 @@
             const renderSlides = () => {
                 slideshowContainer.innerHTML = ''; // Clear previous slides
 
-                // Determine indices for previous, current, and next slides
-                // Uses modulo operator for circular behavior
                 const numSlides = slides.length;
                 const prevIndex = (currentSlideIndex - 1 + numSlides) % numSlides;
                 const nextIndex = (currentSlideIndex + 1) % numSlides;
 
-                // Create and append slides
-                // Leftmost small, semi-transparent
+                // Create elements
                 const prevSlide = document.createElement('div');
-                prevSlide.className = 'absolute transition-all duration-500 ease-in-out transform scale-75 opacity-50 z-10';
-                prevSlide.style.left = '0%';
-                prevSlide.style.width = '30%';
+                const currentSlide = document.createElement('div');
+                const nextSlide = document.createElement('div');
+
+                // Apply common classes and initial content
+                [prevSlide, currentSlide, nextSlide].forEach(slideDiv => {
+                    slideDiv.className = 'absolute transition-all duration-500 ease-in-out transform flex flex-col items-center justify-center text-center';
+                });
+
+                // Set specific content
                 prevSlide.innerHTML = `
-                    <img src="${slides[prevIndex].src}" alt="${slides[prevIndex].title}" class="rounded-md w-full h-48 object-cover mx-auto mb-2">
+                    <img src="${slides[prevIndex].src}" alt="${slides[prevIndex].title}" class="rounded-md object-cover mx-auto mb-2 slideshow-image">
                     <h3 class="text-sm font-semibold text-gray-700">${slides[prevIndex].title}</h3>
                 `;
-                slideshowContainer.appendChild(prevSlide);
-
-                // Center large, fully visible
-                const currentSlide = document.createElement('div');
-                currentSlide.className = 'absolute transition-all duration-500 ease-in-out transform scale-100 opacity-100 z-20';
-                currentSlide.style.left = '35%'; // Centered
-                currentSlide.style.width = '30%';
                 currentSlide.innerHTML = `
-                    <img src="${slides[currentSlideIndex].src}" alt="${slides[currentSlideIndex].title}" class="rounded-md w-full h-64 object-cover mx-auto mb-4">
+                    <img src="${slides[currentSlideIndex].src}" alt="${slides[currentSlideIndex].title}" class="rounded-md object-cover mx-auto mb-4 slideshow-image">
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">${slides[currentSlideIndex].title}</h3>
                     <p class="text-gray-600 text-sm">${slides[currentSlideIndex].description}</p>
                 `;
-                slideshowContainer.appendChild(currentSlide);
-
-                // Rightmost small, semi-transparent
-                const nextSlide = document.createElement('div');
-                nextSlide.className = 'absolute transition-all duration-500 ease-in-out transform scale-75 opacity-50 z-10';
-                nextSlide.style.left = '70%';
-                nextSlide.style.width = '30%';
                 nextSlide.innerHTML = `
-                    <img src="${slides[nextIndex].src}" alt="${slides[nextIndex].title}" class="rounded-md w-full h-48 object-cover mx-auto mb-2">
+                    <img src="${slides[nextIndex].src}" alt="${slides[nextIndex].title}" class="rounded-md object-cover mx-auto mb-2 slideshow-image">
                     <h3 class="text-sm font-semibold text-gray-700">${slides[nextIndex].title}</h3>
                 `;
+
+                // Append to container
+                slideshowContainer.appendChild(prevSlide);
+                slideshowContainer.appendChild(currentSlide);
                 slideshowContainer.appendChild(nextSlide);
 
-                // Adjust positions for responsiveness and overlap
-                // The actual positioning might need fine-tuning based on screen size and desired overlap
-                // For simplicity, using fixed percentages here, but media queries or dynamic calculations
-                // could make it more robust.
-                if (window.innerWidth < 768) { // Adjust for smaller screens
-                    prevSlide.style.left = '-15%';
-                    nextSlide.style.left = '85%';
-                    currentSlide.style.left = '25%';
-                    prevSlide.style.width = '40%';
-                    currentSlide.style.width = '50%';
-                    nextSlide.style.width = '40%';
-                } else {
-                    prevSlide.style.left = '0%';
-                    nextSlide.style.left = '70%';
-                    currentSlide.style.left = '35%';
-                    prevSlide.style.width = '30%';
-                    currentSlide.style.width = '30%';
-                    nextSlide.style.width = '30%';
-                }
+                // Set sizes and positions
+                const isMobile = window.innerWidth < 768;
+
+                // Image dimensions based on A4 horizontal ratio (approx 1.41:1)
+                const largeImgHeight = isMobile ? 180 : 250;
+                const largeImgWidth = Math.round(largeImgHeight * 1.41);
+                const smallImgHeight = isMobile ? 120 : 180;
+                const smallImgWidth = Math.round(smallImgHeight * 1.41);
+
+                // Apply image dimensions
+                currentSlide.querySelector('.slideshow-image').style.width = `${largeImgWidth}px`;
+                currentSlide.querySelector('.slideshow-image').style.height = `${largeImgHeight}px`;
+                prevSlide.querySelector('.slideshow-image').style.width = `${smallImgWidth}px`;
+                prevSlide.querySelector('.slideshow-image').style.height = `${smallImgHeight}px`;
+                nextSlide.querySelector('.slideshow-image').style.width = `${smallImgWidth}px`;
+                nextSlide.querySelector('.slideshow-image').style.height = `${smallImgHeight}px`;
+
+                // Positioning using translateX relative to center
+                // Current Slide (Center)
+                currentSlide.classList.add('scale-100', 'opacity-100', 'z-20');
+                currentSlide.style.left = '50%';
+                currentSlide.style.transform = 'translateX(-50%)';
+
+                // Previous Slide (Left)
+                prevSlide.classList.add('scale-75', 'opacity-50', 'z-10');
+                prevSlide.style.left = '50%';
+                // Calculate offset to place it to the left of the current slide, with a small gap
+                const prevOffset = -(largeImgWidth / 2 + smallImgWidth / 2 + (isMobile ? 10 : 20)); // Adjust gap
+                prevSlide.style.transform = `translateX(calc(-50% + ${prevOffset}px))`;
+
+                // Next Slide (Right)
+                nextSlide.classList.add('scale-75', 'opacity-50', 'z-10');
+                nextSlide.style.left = '50%';
+                // Calculate offset to place it to the right of the current slide, with a small gap
+                const nextOffset = (largeImgWidth / 2 + smallImgWidth / 2 + (isMobile ? 10 : 20)); // Adjust gap
+                nextSlide.style.transform = `translateX(calc(-50% + ${nextOffset}px))`;
+
+                // Add hover effect to the current image
+                const currentImage = currentSlide.querySelector('.slideshow-image');
+                currentImage.addEventListener('mouseenter', () => {
+                    currentImage.classList.add('hover-scale');
+                });
+                currentImage.addEventListener('mouseleave', () => {
+                    currentImage.classList.remove('hover-scale');
+                });
             };
 
             prevButton.addEventListener('click', () => {
@@ -253,7 +272,7 @@
             position: relative;
             width: 100%;
             max-width: 800px; /* Max width for the slideshow */
-            height: 400px; /* Adjust height as needed for content */
+            height: 450px; /* Adjusted height to accommodate large image and text */
             margin: 0 auto;
             overflow: hidden; /* Hide overflowing parts of images */
         }
@@ -261,12 +280,24 @@
             position: relative;
             width: 100%;
             height: 100%;
-            display: flex; /* Use flexbox for initial layout */
-            align-items: center;
-            justify-content: center;
+            /* No flex here, children are absolute */
         }
         .slideshow-container > div {
-            flex-shrink: 0; /* Prevent items from shrinking */
+            position: absolute;
+            transition: all 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            top: 50%; /* Vertically center the slides */
+            transform: translateY(-50%); /* Adjust for vertical centering */
+        }
+        .slideshow-image {
+            transition: transform 0.3s ease-in-out;
+        }
+        .slideshow-image.hover-scale {
+            transform: scale(1.3);
         }
         .slide-button {
             position: absolute;
@@ -323,7 +354,7 @@
                 <!-- User Profile (hidden when logged out/anonymous) -->
                 <div id="user-profile-nav" class="relative group hidden">
                     <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
-                        <img src="https://placehold.co/32x32/A0AEC0/FFFFFF?text=CF" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <img src="./fotoprofilo.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
                         <span class="hidden md:inline">Profilo</span>
                     </button>
                     <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
