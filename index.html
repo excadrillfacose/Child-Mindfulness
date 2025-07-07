@@ -125,6 +125,97 @@
                     }
                 });
             }
+
+            // Slideshow logic
+            const slides = [
+                { src: "./attestato1.png", title: "Diploma Yoga per Bambini", description: "testotestotestotesto" },
+                { src: "./attestato2.png", title: "Certificazione Istruttore Mindfulness", description: "testotestotestotesto" },
+                { src: "./attestato3.png", title: "Specializzazione Meditazione Guidata", description: "testotestotestotesto" },
+                { src: "./attestato4.png", title: "Corso di Formazione in Educazione Emotiva", description: "testotestotestotesto" },
+                { src: "./attestato5.png", title: "Master in Terapie Olistiche", description: "testotestotestotesto" } // Added a 5th attestato
+            ];
+            let currentSlideIndex = 0;
+            const slideshowContainer = document.getElementById('slideshow-container');
+            const prevButton = document.getElementById('prev-slide');
+            const nextButton = document.getElementById('next-slide');
+
+            const renderSlides = () => {
+                slideshowContainer.innerHTML = ''; // Clear previous slides
+
+                // Determine indices for previous, current, and next slides
+                // Uses modulo operator for circular behavior
+                const numSlides = slides.length;
+                const prevIndex = (currentSlideIndex - 1 + numSlides) % numSlides;
+                const nextIndex = (currentSlideIndex + 1) % numSlides;
+
+                // Create and append slides
+                // Leftmost small, semi-transparent
+                const prevSlide = document.createElement('div');
+                prevSlide.className = 'absolute transition-all duration-500 ease-in-out transform scale-75 opacity-50 z-10';
+                prevSlide.style.left = '0%';
+                prevSlide.style.width = '30%';
+                prevSlide.innerHTML = `
+                    <img src="${slides[prevIndex].src}" alt="${slides[prevIndex].title}" class="rounded-md w-full h-48 object-cover mx-auto mb-2">
+                    <h3 class="text-sm font-semibold text-gray-700">${slides[prevIndex].title}</h3>
+                `;
+                slideshowContainer.appendChild(prevSlide);
+
+                // Center large, fully visible
+                const currentSlide = document.createElement('div');
+                currentSlide.className = 'absolute transition-all duration-500 ease-in-out transform scale-100 opacity-100 z-20';
+                currentSlide.style.left = '35%'; // Centered
+                currentSlide.style.width = '30%';
+                currentSlide.innerHTML = `
+                    <img src="${slides[currentSlideIndex].src}" alt="${slides[currentSlideIndex].title}" class="rounded-md w-full h-64 object-cover mx-auto mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${slides[currentSlideIndex].title}</h3>
+                    <p class="text-gray-600 text-sm">${slides[currentSlideIndex].description}</p>
+                `;
+                slideshowContainer.appendChild(currentSlide);
+
+                // Rightmost small, semi-transparent
+                const nextSlide = document.createElement('div');
+                nextSlide.className = 'absolute transition-all duration-500 ease-in-out transform scale-75 opacity-50 z-10';
+                nextSlide.style.left = '70%';
+                nextSlide.style.width = '30%';
+                nextSlide.innerHTML = `
+                    <img src="${slides[nextIndex].src}" alt="${slides[nextIndex].title}" class="rounded-md w-full h-48 object-cover mx-auto mb-2">
+                    <h3 class="text-sm font-semibold text-gray-700">${slides[nextIndex].title}</h3>
+                `;
+                slideshowContainer.appendChild(nextSlide);
+
+                // Adjust positions for responsiveness and overlap
+                // The actual positioning might need fine-tuning based on screen size and desired overlap
+                // For simplicity, using fixed percentages here, but media queries or dynamic calculations
+                // could make it more robust.
+                if (window.innerWidth < 768) { // Adjust for smaller screens
+                    prevSlide.style.left = '-15%';
+                    nextSlide.style.left = '85%';
+                    currentSlide.style.left = '25%';
+                    prevSlide.style.width = '40%';
+                    currentSlide.style.width = '50%';
+                    nextSlide.style.width = '40%';
+                } else {
+                    prevSlide.style.left = '0%';
+                    nextSlide.style.left = '70%';
+                    currentSlide.style.left = '35%';
+                    prevSlide.style.width = '30%';
+                    currentSlide.style.width = '30%';
+                    nextSlide.style.width = '30%';
+                }
+            };
+
+            prevButton.addEventListener('click', () => {
+                currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+                renderSlides();
+            });
+
+            nextButton.addEventListener('click', () => {
+                currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                renderSlides();
+            });
+
+            renderSlides(); // Initial render
+            window.addEventListener('resize', renderSlides); // Re-render on resize
         });
     </script>
     <style>
@@ -156,6 +247,60 @@
         }
         .social-icon:hover {
             transform: scale(1.1);
+        }
+        /* Slideshow specific styles */
+        .slideshow-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width for the slideshow */
+            height: 400px; /* Adjust height as needed for content */
+            margin: 0 auto;
+            overflow: hidden; /* Hide overflowing parts of images */
+        }
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Use flexbox for initial layout */
+            align-items: center;
+            justify-content: center;
+        }
+        .slideshow-container > div {
+            flex-shrink: 0; /* Prevent items from shrinking */
+        }
+        .slide-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 30; /* Above slides */
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        .slide-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .slide-button.left {
+            left: 10px;
+        }
+        .slide-button.right {
+            right: 10px;
+        }
+        /* Responsive adjustments for slideshow */
+        @media (max-width: 768px) {
+            .slideshow-wrapper {
+                height: 350px; /* Smaller height on mobile */
+            }
+            .slideshow-container > div {
+                padding: 0 10px; /* Add some padding on mobile */
+            }
+            .slide-button {
+                padding: 0.75rem;
+            }
         }
     </style>
 </head>
@@ -219,9 +364,12 @@
                 <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Benvenuti nel Mondo della Consapevolezza</h1>
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Sono Caterina Figlioli, e vi guiderò in un percorso di benessere e crescita interiore attraverso la mindfulness e lo yoga.</p>
                 <div class="mt-8">
-                    <!-- Placeholder for Presentation Video -->
+                    <!-- Video di presentazione -->
                     <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden max-w-4xl mx-auto flex items-center justify-center">
-                        <p class="text-gray-500 text-lg">Video di presentazione (verrà caricato qui)</p>
+                        <video controls class="w-full h-full">
+                            <source src="./videopresentazione.mp4" type="video/mp4">
+                            Il tuo browser non supporta il tag video.
+                        </video>
                     </div>
                 </div>
             </div>
@@ -235,7 +383,7 @@
                     <p class="text-lg text-gray-600">testotestotestotesto</p>
                 </div>
                 <div class="flex justify-center md:justify-end">
-                    <img src="https://placehold.co/400x400/E2E8F0/4A4A4A?text=Foto+Profilo" alt="Foto di Caterina Figlioli" class="rounded-full w-64 h-64 md:w-80 md:h-80 object-cover shadow-lg">
+                    <img src="./fotoprofilo.png" alt="Foto di Caterina Figlioli" class="rounded-full w-64 h-64 md:w-80 md:h-80 object-cover shadow-lg">
                 </div>
             </div>
         </section>
@@ -243,27 +391,20 @@
         <section id="diplomas" class="py-16 bg-white">
             <div class="container mx-auto px-6 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-8">I Miei Diplomi e Certificazioni</h2>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="card p-6">
-                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+1" alt="Diploma 1" class="mx-auto mb-4 rounded-md">
-                        <h3 class="text-xl font-semibold mb-2">Diploma Yoga per Bambini</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
+                <div class="slideshow-wrapper">
+                    <div id="slideshow-container" class="slideshow-container">
+                        <!-- Slides will be dynamically inserted here by JavaScript -->
                     </div>
-                    <div class="card p-6">
-                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+2" alt="Diploma 2" class="mx-auto mb-4 rounded-md">
-                        <h3 class="text-xl font-semibold mb-2">Certificazione Istruttore Mindfulness</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
-                    </div>
-                    <div class="card p-6">
-                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+3" alt="Diploma 3" class="mx-auto mb-4 rounded-md">
-                        <h3 class="text-xl font-semibold mb-2">Specializzazione Meditazione Guidata</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
-                    </div>
-                     <div class="card p-6">
-                        <img src="https://placehold.co/150x100/A0AEC0/FFFFFF?text=Diploma+4" alt="Diploma 4" class="mx-auto mb-4 rounded-md">
-                        <h3 class="text-xl font-semibold mb-2">Corso di Formazione in Educazione Emotiva</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
-                    </div>
+                    <button id="prev-slide" class="slide-button left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button id="next-slide" class="slide-button right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </section>
