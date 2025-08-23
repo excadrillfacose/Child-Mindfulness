@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+FileName: MultipleFiles/embed1.html
+FileContents: <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -136,15 +137,16 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F7F4;
-            color: #4A4A4A;
+            background-color: #F8F7F4; /* Soft off-white */
+            color: #333333; /* Darker, more readable text */
         }
         .nav-link {
             transition: color 0.3s, border-bottom-color 0.3s;
             border-bottom: 2px solid transparent;
+            color: #6B7280; /* Slightly softer nav link color */
         }
         .nav-link:hover, .nav-link.active {
-            color: #5A67D8;
+            color: #5A67D8; /* Primary accent blue */
             border-bottom-color: #5A67D8;
         }
         .card {
@@ -278,8 +280,10 @@
             <div class="hidden md:flex space-x-8 items-center">
                 <a href="index.html" class="nav-link py-2">Home</a>
                 <a href="embed1.html" class="nav-link py-2 active">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
                 <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
                 <a href="embed4.html" class="nav-link py-2">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
                 
                 <!-- Auth Links (hidden when logged in) -->
                 <div id="auth-links-nav" class="flex space-x-8">
@@ -310,8 +314,10 @@
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
             <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
             <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
             <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
             <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
             
             <!-- Mobile Auth Links -->
             <div id="mobile-auth-links">
@@ -328,31 +334,31 @@
         <section id="hero" class="py-20 bg-white">
             <div class="container mx-auto px-6 text-center">
                 <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Mindfulness: Un Percorso per Ogni Età</h1>
-                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Esplora i benefici della consapevolezza per bambini, adolescenti e adulti. Scopri come la mindfulness può arricchire la vita di tutta la famiglia.</p>
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Esplora i benefici della consapevolezza per bambini, adolescenti e adulti. Scopri come la mindfulness può arricchire la vita di tutta la famiglia, promuovendo calma, attenzione e benessere.</p>
             </div>
         </section>
 
         <section id="overview" class="py-16">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Comprendere la Mindfulness</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La mindfulness, o consapevolezza, è un'attenzione speciale che si porta al momento presente, con intenzione e senza giudizio. È una pratica preziosa che aiuta a coltivare una presenza mentale più profonda.</p>
+                    <h2 class="text-3xl font-bold text-gray-800">Comprendere la Mindfulness: I Tre Pilastri</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La mindfulness, o consapevolezza, è un'attenzione speciale che si porta al momento presente, con intenzione e senza giudizio. È una pratica preziosa che aiuta a coltivare una presenza mentale più profonda e una maggiore serenità.</p>
                 </div>
                 <div class="grid md:grid-cols-3 gap-8 text-center">
                     <div class="card p-8">
                         <div class="text-4xl mb-4">🧘</div>
-                        <h3 class="text-xl font-semibold mb-2">Intenzione</h3>
-                        <p>È il desiderio sincero di essere presenti, scegliendo con cura di portare la nostra attenzione a ciò che accade qui e ora.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Intenzione</h3>
+                        <p class="text-gray-600">È il desiderio sincero di essere presenti, scegliendo con cura di portare la nostra attenzione a ciò che accade qui e ora, con curiosità e apertura.</p>
                     </div>
                     <div class="card p-8">
                         <div class="text-4xl mb-4">🎯</div>
-                        <h3 class="text-xl font-semibold mb-2">Attenzione</h3>
-                        <p>La capacità di dirigere la nostra mente, di mantenerla focalizzata e di spostarla con dolcezza tra i pensieri, le emozioni e il mondo che ci circonda.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Attenzione</h3>
+                        <p class="text-gray-600">La capacità di dirigere la nostra mente, di mantenerla focalizzata e di spostarla con dolcezza tra i pensieri, le emozioni e il mondo che ci circonda, senza farsi travolgere.</p>
                     </div>
                     <div class="card p-8">
                         <div class="text-4xl mb-4">❤️</div>
-                        <h3 class="text-xl font-semibold mb-2">Attitudine</h3>
-                        <p>Un modo di essere aperto e curioso, accogliendo ogni esperienza con gentilezza e senza giudicare, coltivando pazienza e fiducia in se stessi.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Attitudine</h3>
+                        <p class="text-gray-600">Un modo di essere aperto e curioso, accogliendo ogni esperienza con gentilezza e senza giudicare, coltivando pazienza, fiducia in se stessi e non-sforzo.</p>
                     </div>
                 </div>
             </div>
@@ -362,24 +368,24 @@
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
                     <h2 class="text-3xl font-bold text-gray-800">I Doni della Mindfulness per i Giovani</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La ricerca ci mostra i numerosi doni che la mindfulness offre a bambini e adolescenti. Questa pratica supporta il loro sviluppo e benessere, arricchendo ogni aspetto della loro vita quotidiana.</p>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La ricerca ci mostra i numerosi doni che la mindfulness offre a bambini e adolescenti. Questa pratica supporta il loro sviluppo e benessere, arricchendo ogni aspetto della loro vita quotidiana, dalla scuola alle relazioni.</p>
                 </div>
                 <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Un Cuore Sereno</h3>
-                        <p class="text-gray-600">La mindfulness aiuta a coltivare un cuore più calmo, riducendo l'ansia, lo stress e quel fastidioso senso di colpa, specialmente quando si affrontano momenti di disagio emotivo.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Un Cuore Sereno</h3>
+                        <p class="text-gray-600">La mindfulness aiuta a coltivare un cuore più calmo, riducendo l'ansia, lo stress e quel fastidioso senso di colpa, specialmente quando si affrontano momenti di disagio emotivo. Promuove la resilienza emotiva.</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Una Mente Brillante</h3>
-                        <p class="text-gray-600">Si osservano miglioramenti nelle capacità di attenzione, memoria e nel prendere decisioni. Le abilità cognitive ed emotive fioriscono grazie alla pratica.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Una Mente Brillante</h3>
+                        <p class="text-gray-600">Si osservano miglioramenti significativi nelle capacità di attenzione, memoria e nel prendere decisioni. Le abilità cognitive ed emotive fioriscono grazie alla pratica costante, supportando il successo scolastico e personale.</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Padrone di Sé</h3>
-                        <p class="text-gray-600">La mindfulness insegna a regolare le proprie emozioni e i comportamenti. I più piccoli imparano a essere più gentili e a gestire meglio le emozioni, riducendo l'iperattività.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Padrone di Sé</h3>
+                        <p class="text-gray-600">La mindfulness insegna a riconoscere e regolare le proprie emozioni e i comportamenti. I più piccoli imparano a essere più gentili con se stessi e con gli altri, a gestire meglio le reazioni impulsive e a ridurre l'iperattività.</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Focalizzazione e Sogni Tranquilli</h3>
-                        <p class="text-gray-600">Un valido aiuto per migliorare la concentrazione e dire addio alla procrastinazione. Pratiche come il "body scan" favoriscono il rilassamento e un sonno più riposante.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Focalizzazione e Sogni Tranquilli</h3>
+                        <p class="text-gray-600">Un valido aiuto per migliorare la concentrazione, superare le distrazioni e dire addio alla procrastinazione. Pratiche come il "body scan" favoriscono il rilassamento profondo e un sonno più riposante e rigenerante.</p>
                     </div>
                 </div>
             </div>
@@ -387,24 +393,24 @@
 
         <section id="mindfulness-adults" class="py-16">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Mindfulness per Adulti</h2>
-                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">La mindfulness non è solo per i più giovani! Anche gli adulti possono trarre immensi benefici da questa pratica, trovando maggiore calma, chiarezza e resilienza nella vita quotidiana.</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Mindfulness per Adulti: Riscopri la Tua Serenità</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">La mindfulness non è solo per i più giovani! Anche gli adulti possono trarre immensi benefici da questa pratica millenaria, trovando maggiore calma, chiarezza mentale e resilienza per affrontare le sfide della vita quotidiana.</p>
                 <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Gestione dello Stress e Ansia</h3>
-                        <p class="text-gray-600">La pratica regolare della mindfulness aiuta gli adulti a ridurre i livelli di stress cronico e a gestire l'ansia, promuovendo un senso di pace interiore.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Gestione dello Stress e Ansia</h3>
+                        <p class="text-gray-600">La pratica regolare della mindfulness aiuta gli adulti a ridurre significativamente i livelli di stress cronico e a gestire l'ansia, promuovendo un profondo senso di pace interiore e benessere.</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Miglioramento della Concentrazione</h3>
-                        <p class="text-gray-600">La mindfulness affina la capacità di concentrazione e attenzione, migliorando la produttività e la chiarezza mentale nel lavoro e nella vita personale.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Miglioramento della Concentrazione</h3>
+                        <p class="text-gray-600">La mindfulness affina la capacità di concentrazione e attenzione, migliorando la produttività, la creatività e la chiarezza mentale sia nel lavoro che nella vita personale.</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Regolazione Emotiva</h3>
-                        <p class="text-gray-600">Gli adulti imparano a riconoscere e rispondere alle proprie emozioni in modo più equilibrato, evitando reazioni impulsive e coltivando una maggiore intelligenza emotiva.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Regolazione Emotiva</h3>
+                        <p class="text-gray-600">Gli adulti imparano a riconoscere e rispondere alle proprie emozioni in modo più equilibrato e consapevole, evitando reazioni impulsive e coltivando una maggiore intelligenza emotiva.</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-3">Relazioni Interpersonali</h3>
-                        <p class="text-gray-600">Una maggiore consapevolezza di sé e degli altri può portare a relazioni più autentiche e armoniose, migliorando la comunicazione e l'empatia.</p>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Relazioni Interpersonali Armoniose</h3>
+                        <p class="text-gray-600">Una maggiore consapevolezza di sé e degli altri può portare a relazioni più autentiche, empatiche e armoniose, migliorando la comunicazione e la comprensione reciproca.</p>
                     </div>
                 </div>
             </div>
@@ -413,18 +419,18 @@
         <section id="evidence" class="py-16">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">L'Efficacia degli Interventi</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La ricerca sulla mindfulness continua a rivelare il potenziale straordinario di questi interventi. Questa sezione evidenzia come diversi tipi di pratica possano promuovere il benessere emotivo e la gestione dello stress nelle diverse fasce d'età.</p>
+                    <h2 class="text-3xl font-bold text-gray-800">L'Efficacia degli Interventi di Mindfulness: Cosa Dice la Scienza</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">La ricerca scientifica sulla mindfulness continua a rivelare il potenziale straordinario di questi interventi. Questa sezione evidenzia come diversi tipi di pratica possano promuovere il benessere emotivo e la gestione dello stress nelle diverse fasce d'età, basandosi su solide evidenze.</p>
                 </div>
                 <div class="grid lg:grid-cols-1 gap-12 items-start">
                     <div>
-                        <h3 class="text-xl font-semibold text-center mb-4">I Percorsi della Mindfulness: Un Confronto</h3>
-                        <p class="text-center text-gray-600 mb-6">Questo grafico illustra il miglioramento medio osservato in ansia, benessere emotivo e stress dopo un percorso di mindfulness, confrontato con una situazione senza intervento specifico.</p>
+                        <h3 class="text-xl font-semibold text-center mb-4">I Percorsi della Mindfulness: Un Confronto di Efficacia</h3>
+                        <p class="text-center text-gray-600 mb-6">Questo grafico illustra il miglioramento medio osservato in ansia, benessere emotivo e stress dopo un percorso di mindfulness, confrontato con una situazione senza intervento specifico. I dati sono basati su meta-analisi e revisioni sistematiche.</p>
                         <div class="chart-container">
                             <canvas id="effectivenessChart"></canvas>
                         </div>
                         <p class="text-center text-sm text-gray-500 mt-2">
-                            *La "Dimensione dell'Effetto (d di Cohen)" è un modo per misurare la forza di un intervento. Valori più alti indicano un impatto più forte, mentre valori vicini allo zero indicano un beneficio minimo o nullo.*
+                            *La "Dimensione dell'Effetto (d di Cohen)" è un modo standardizzato per misurare la forza di un intervento. Valori più alti indicano un impatto più forte e clinicamente significativo, mentre valori vicini allo zero indicano un beneficio minimo o nullo.*
                         </p>
                         <div class="text-center text-sm text-gray-500 mt-2">
                             Fonti: <a href="https://www.mdpi.com/2036-7503/17/3/59" class="source-link" target="_blank">Studio MDPI 2025</a>, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6546608/" class="source-link" target="_blank">Revisione Cognizione PubMed Central</a>, <a href="https://www.researchgate.net/publication/332160762_Mindfulness-based_interventions_for_adolescent_health" class="source-link" target="_blank">Revisione Adolescenziale ResearchGate</a>
@@ -437,8 +443,8 @@
         <section id="factors" class="py-16 bg-white">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Fattori che Fanno la Differenza</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Il successo di un percorso di mindfulness è un'armonia di fattori che ne amplificano la magia. Esplora il diagramma interattivo sottostante per scoprire come l'età, l'esperienza di chi guida e il calore della famiglia siano ingredienti fondamentali per risultati eccezionali.</p>
+                    <h2 class="text-3xl font-bold text-gray-800">Fattori Chiave per un Percorso di Mindfulness Efficace</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Il successo di un percorso di mindfulness è un'armonia di fattori che ne amplificano la magia. Esplora il diagramma interattivo sottostante per scoprire come l'età, l'esperienza di chi guida e il calore della famiglia siano ingredienti fondamentali per risultati eccezionali e duraturi.</p>
                 </div>
                 <div class="diagram-container max-w-3xl mx-auto">
                     <!-- Nodes for the spider web diagram -->
@@ -476,8 +482,8 @@
         <section id="sources" class="py-16">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Le Nostre Fonti di Ispirazione</h2>
-                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Crediamo nella trasparenza e nella solidità scientifica. Qui trovi l'elenco completo delle ricerche e degli studi che hanno ispirato e guidato la creazione di questo percorso.</p>
+                    <h2 class="text-3xl font-bold text-gray-800">Le Nostre Fonti di Ispirazione e Ricerca</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Crediamo nella trasparenza e nella solidità scientifica. Qui trovi l'elenco completo delle ricerche e degli studi che hanno ispirato e guidato la creazione di questo percorso, garantendo un approccio basato sulle evidenze.</p>
                 </div>
                 <div class="text-sm text-gray-700 mt-4 max-w-3xl mx-auto">
                     <ol class="list-decimal list-inside source-list">
@@ -538,8 +544,18 @@
                     if (entry.isIntersecting) {
                         navLinks.forEach(link => {
                             link.classList.remove('active');
-                            if (link.getAttribute('href').substring(1) === entry.target.id) {
-                                link.classList.add('active');
+                            // Check if the href matches the section ID, handling internal links like #contact
+                            const href = link.getAttribute('href');
+                            if (href && href.startsWith('#')) {
+                                if (href.substring(1) === entry.target.id) {
+                                    link.classList.add('active');
+                                }
+                            } else if (href && href.endsWith('.html')) {
+                                // For full page links, check if the current page matches
+                                const currentPage = window.location.pathname.split('/').pop();
+                                if (href.includes(currentPage)) {
+                                    link.classList.add('active');
+                                }
                             }
                         });
                     }
@@ -624,23 +640,23 @@
             const factorDetails = {
                 age: {
                     title: "Età e Sviluppo",
-                    description: "I benefici della mindfulness sono più evidenti nella tarda adolescenza (15-18 anni). Tuttavia, con adattamenti speciali e un linguaggio adatto, anche i bambini più piccoli possono godere di vantaggi duraturi e meravigliosi, sviluppando abilità preziose fin dalla tenera età."
+                    description: "I benefici della mindfulness sono più evidenti nella tarda adolescenza (15-18 anni), dove si osservano miglioramenti significativi. Tuttavia, con adattamenti speciali e un linguaggio adatto, anche i bambini più piccoli possono godere di vantaggi duraturi e meravigliosi, sviluppando abilità preziose fin dalla tenera età per una crescita armoniosa."
                 },
                 instructor: {
                     title: "Chi Guida il Percorso",
-                    description: "L'esperienza di chi guida il percorso è fondamentale. Gli interventi condotti da esperti con una profonda e autentica esperienza nella mindfulness portano a risultati eccezionalmente brillanti, massimizzando i doni per ogni partecipante e creando un ambiente di apprendimento più ricco e profondo."
+                    description: "L'esperienza e la preparazione di chi guida il percorso sono fondamentali. Gli interventi condotti da esperti con una profonda e autentica esperienza nella mindfulness portano a risultati eccezionalmente brillanti, massimizzando i doni per ogni partecipante e creando un ambiente di apprendimento più ricco, sicuro e profondo."
                 },
                 parents: {
                     title: "Il Calore della Famiglia",
-                    description: "Il coinvolgimento amorevole e attivo dei genitori è un tesoro prezioso per un successo che dura nel tempo. Quando la pratica della mindfulness si integra armoniosamente sia a casa che a scuola, il benessere del bambino fiorisce in modo più completo e profondo, creando un ambiente di supporto costante."
+                    description: "Il coinvolgimento amorevole e attivo dei genitori è un tesoro prezioso per un successo che dura nel tempo. Quando la pratica della mindfulness si integra armoniosamente sia a casa che a scuola, il benessere del bambino fiorisce in modo più completo e profondo, creando un ambiente di supporto costante e coerente che ne amplifica i benefici."
                 },
                 school: {
                     title: "Supporto Scolastico",
-                    description: "Le scuole giocano un ruolo cruciale nel promuovere la mindfulness. L'integrazione di pratiche di consapevolezza nell'ambiente scolastico può migliorare il clima di classe, ridurre il bullismo e favorire l'empatia tra gli studenti, contribuendo a un benessere olistico."
+                    description: "Le scuole giocano un ruolo cruciale nel promuovere la mindfulness. L'integrazione di pratiche di consapevolezza nell'ambiente scolastico può migliorare il clima di classe, ridurre il bullismo, favorire l'empatia tra gli studenti e potenziare le capacità di apprendimento, contribuendo a un benessere olistico e a un ambiente più sereno."
                 },
                 peers: {
                     title: "L'Influenza dei Pari",
-                    description: "L'ambiente sociale e l'influenza dei pari possono avere un impatto significativo sull'adozione e sul mantenimento delle pratiche di mindfulness. Un gruppo di pari supportivo e coinvolto può rafforzare i benefici e rendere il percorso più piacevole e duraturo per i giovani."
+                    description: "L'ambiente sociale e l'influenza dei pari possono avere un impatto significativo sull'adozione e sul mantenimento delle pratiche di mindfulness. Un gruppo di pari supportivo e coinvolto può rafforzare i benefici, rendere il percorso più piacevole e duraturo per i giovani, e creare una rete di supporto reciproco nella pratica della consapevolezza."
                 }
             };
 
