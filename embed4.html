@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+FileName: MultipleFiles/embed4.html
+FileContents: <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -135,15 +136,16 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F7F4;
-            color: #4A4A4A;
+            background-color: #F8F7F4; /* Soft off-white */
+            color: #333333; /* Darker, more readable text */
         }
         .nav-link {
             transition: color 0.3s, border-bottom-color 0.3s;
             border-bottom: 2px solid transparent;
+            color: #6B7280; /* Slightly softer nav link color */
         }
         .nav-link:hover, .nav-link.active {
-            color: #5A67D8;
+            color: #5A67D8; /* Primary accent blue */
             border-bottom-color: #5A67D8;
         }
         .blog-card {
@@ -166,8 +168,10 @@
             <div class="hidden md:flex space-x-8 items-center">
                 <a href="index.html" class="nav-link py-2">Home</a>
                 <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
                 <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
                 <a href="embed4.html" class="nav-link py-2 active">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
                 
                 <!-- Auth Links (hidden when logged in) -->
                 <div id="auth-links-nav" class="flex space-x-8">
@@ -198,8 +202,10 @@
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
             <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
             <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
             <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
             <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
             
             <!-- Mobile Auth Links -->
             <div id="mobile-auth-links">
@@ -214,47 +220,47 @@
 
     <main class="py-16">
         <div class="container mx-auto px-6">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-8 text-center">Il Blog di Caterina Figlioli</h1>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-12">Qui troverai articoli e riflessioni sulla mindfulness, lo yoga, il benessere e la crescita personale, per accompagnarti nel tuo percorso di consapevolezza.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-8 text-center">Il Blog di Caterina Figlioli: Approfondimenti e Ispirazioni</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-12">Qui troverai articoli e riflessioni sulla mindfulness, lo yoga, il benessere e la crescita personale. Un luogo dove nutrire la mente e lo spirito, accompagnandoti nel tuo percorso di consapevolezza.</p>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Blog Article 1 -->
                 <div class="blog-card p-6">
-                    <img src="https://placehold.co/400x250/E2E8F0/4A4A4A?text=Articolo+1" alt="Immagine Articolo 1" class="rounded-md mb-4 w-full h-48 object-cover">
-                    <h3 class="text-xl font-semibold mb-2">La Mindfulness per Iniziare Bene la Giornata</h3>
-                    <p class="text-gray-600 text-sm mb-4">Scopri come pochi minuti di consapevolezza al mattino possono trasformare la tua intera giornata.</p>
+                    <img src="https://placehold.co/400x250/E2E8F0/4A4A4A?text=Mindfulness+Mattutina" alt="Immagine Articolo 1: Mindfulness Mattutina" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">La Mindfulness per Iniziare Bene la Giornata</h3>
+                    <p class="text-gray-600 text-sm mb-4">Scopri come pochi minuti di consapevolezza al mattino possono trasformare la tua intera giornata, portando calma e chiarezza fin dalle prime ore.</p>
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
                 <!-- Blog Article 2 -->
                 <div class="blog-card p-6">
-                    <img src="https://placehold.co/400x250/A0AEC0/FFFFFF?text=Articolo+2" alt="Immagine Articolo 2" class="rounded-md mb-4 w-full h-48 object-cover">
-                    <h3 class="text-xl font-semibold mb-2">Yoga e Mindfulness: Un'Unione Perfetta</h3>
-                    <p class="text-gray-600 text-sm mb-4">Esplora come le pratiche di yoga e mindfulness si completano a vicenda per un benessere olistico.</p>
+                    <img src="https://placehold.co/400x250/A0AEC0/FFFFFF?text=Yoga+e+Mindfulness" alt="Immagine Articolo 2: Yoga e Mindfulness" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Yoga e Mindfulness: Un'Unione Perfetta per il Benessere</h3>
+                    <p class="text-gray-600 text-sm mb-4">Esplora come le pratiche millenarie di yoga e mindfulness si completano a vicenda, offrendo un percorso olistico per il benessere di corpo e mente.</p>
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
                 <!-- Blog Article 3 -->
                 <div class="blog-card p-6">
-                    <img src="https://placehold.co/400x250/718096/FFFFFF?text=Articolo+3" alt="Immagine Articolo 3" class="rounded-md mb-4 w-full h-48 object-cover">
-                    <h3 class="text-xl font-semibold mb-2">Come Gestire lo Stress con la Consapevolezza</h3>
-                    <p class="text-gray-600 text-sm mb-4">Tecniche semplici ed efficaci per affrontare i momenti di tensione con maggiore calma.</p>
+                    <img src="https://placehold.co/400x250/718096/FFFFFF?text=Gestione+Stress" alt="Immagine Articolo 3: Gestione Stress" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Come Gestire lo Stress con la Consapevolezza</h3>
+                    <p class="text-gray-600 text-sm mb-4">Tecniche semplici ed efficaci per affrontare i momenti di tensione e ansia con maggiore calma, trasformando le reazioni automatiche in risposte consapevoli.</p>
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
                 <!-- Blog Article 4 -->
                 <div class="blog-card p-6">
-                    <img src="https://placehold.co/400x250/9F7AEA/FFFFFF?text=Articolo+4" alt="Immagine Articolo 4" class="rounded-md mb-4 w-full h-48 object-cover">
-                    <h3 class="text-xl font-semibold mb-2">Mindfulness per Genitori: Coltivare la Pazienza</h3>
-                    <p class="text-gray-600 text-sm mb-4">Consigli pratici per i genitori che desiderano portare più consapevolezza e calma nella vita familiare.</p>
+                    <img src="https://placehold.co/400x250/9F7AEA/FFFFFF?text=Mindfulness+Genitori" alt="Immagine Articolo 4: Mindfulness Genitori" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness per Genitori: Coltivare la Pazienza e la Presenza</h3>
+                    <p class="text-gray-600 text-sm mb-4">Consigli pratici e ispirazioni per i genitori che desiderano portare più consapevolezza, calma e armonia nella dinamica familiare quotidiana.</p>
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
                 <!-- Blog Article 5 -->
                 <div class="blog-card p-6">
-                    <img src="https://placehold.co/400x250/4FD1C5/FFFFFF?text=Articolo+5" alt="Immagine Articolo 5" class="rounded-md mb-4 w-full h-48 object-cover">
-                    <h3 class="text-xl font-semibold mb-2">Il Potere del Respiro Consapevole</h3>
-                    <p class="text-gray-600 text-sm mb-4">Un'esplorazione approfondita di una delle pratiche fondamentali della mindfulness per il benessere.</p>
+                    <img src="https://placehold.co/400x250/4FD1C5/FFFFFF?text=Respiro+Consapevole" alt="Immagine Articolo 5: Respiro Consapevole" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Il Potere Trasformativo del Respiro Consapevole</h3>
+                    <p class="text-gray-600 text-sm mb-4">Un'esplorazione approfondita di una delle pratiche fondamentali della mindfulness, il respiro, come strumento potente per il benessere fisico e mentale.</p>
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
             </div>
