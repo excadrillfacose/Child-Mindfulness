@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+FileName: MultipleFiles/embed2.html
+FileContents: <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -160,15 +161,16 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F7F4;
-            color: #4A4A4A;
+            background-color: #F8F7F4; /* Soft off-white */
+            color: #333333; /* Darker, more readable text */
         }
         .nav-link {
             transition: color 0.3s, border-bottom-color 0.3s;
             border-bottom: 2px solid transparent;
+            color: #6B7280; /* Slightly softer nav link color */
         }
         .nav-link:hover, .nav-link.active {
-            color: #5A67D8;
+            color: #5A67D8; /* Primary accent blue */
             border-bottom-color: #5A67D8;
         }
         .card {
@@ -191,8 +193,10 @@
             <div class="hidden md:flex space-x-8 items-center">
                 <a href="index.html" class="nav-link py-2">Home</a>
                 <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
                 <a href="embed2.html" class="nav-link py-2 active">Video Gratuiti</a>
                 <a href="embed4.html" class="nav-link py-2">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
                 
                 <!-- Auth Links (hidden when logged in) -->
                 <div id="auth-links-nav" class="flex space-x-8">
@@ -223,8 +227,10 @@
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
             <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
             <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
             <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
             <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
             
             <!-- Mobile Auth Links -->
             <div id="mobile-auth-links">
@@ -243,48 +249,53 @@
 
             <div id="login-prompt" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md text-center hidden">
                 <p class="font-bold text-lg mb-2">Contenuto Riservato!</p>
-                <p>Per accedere ai video gratuiti, è necessario <a href="embed0.html" class="font-bold underline">Accedere o Registrarsi</a>.</p>
+                <p>Per accedere ai video gratuiti, è necessario <a href="embed0.html" class="font-bold underline text-blue-600 hover:text-blue-800">Accedere o Registrarsi</a>.</p>
             </div>
 
             <div id="video-gallery" class="hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">I Tuoi Video Gratuiti</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-12">Benvenuto! Qui troverai una selezione di video di mindfulness per iniziare il tuo percorso di consapevolezza. Scegli il tuo momento e buona pratica!</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">I Tuoi Video Gratuiti di Mindfulness</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-12">Benvenuto! Qui troverai una selezione curata di video di mindfulness per iniziare o approfondire il tuo percorso di consapevolezza. Scegli il tuo momento ideale e immergiti nella pratica.</p>
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div class="card p-4">
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <p class="text-gray-500">Video 1 (Placeholder)</p>
+                            <!-- Placeholder for actual video embed (e.g., YouTube iframe) -->
+                            <p class="text-gray-500">Video 1: Introduzione</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Introduzione alla Mindfulness</h3>
-                        <p class="text-gray-600">Un primo passo per comprendere le basi della consapevolezza e come integrarla nella tua giornata.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Introduzione alla Mindfulness</h3>
+                        <p class="text-gray-600">Un primo passo essenziale per comprendere le basi della consapevolezza e come integrarla con semplicità nella tua giornata, per una maggiore calma.</p>
                     </div>
                     <div class="card p-4">
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <p class="text-gray-500">Video 2 (Placeholder)</p>
+                            <!-- Placeholder for actual video embed -->
+                            <p class="text-gray-500">Video 2: Meditazione Guidata</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Meditazione Guidata per la Calma</h3>
-                        <p class="text-gray-600">Una sessione guidata per trovare un momento di pace e ridurre lo stress.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Meditazione Guidata per la Calma Interiore</h3>
+                        <p class="text-gray-600">Una sessione guidata pensata per aiutarti a trovare un momento di profonda pace, ridurre lo stress accumulato e ritrovare la serenità.</p>
                     </div>
                     <div class="card p-4">
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <p class="text-gray-500">Video 3 (Placeholder)</p>
+                            <!-- Placeholder for actual video embed -->
+                            <p class="text-gray-500">Video 3: Mindfulness in Movimento</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Mindfulness in Movimento</h3>
-                        <p class="text-gray-600">Scopri come portare la consapevolezza nel movimento quotidiano con semplici esercizi.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness in Movimento: Consapevolezza del Corpo</h3>
+                        <p class="text-gray-600">Scopri come portare la consapevolezza nel movimento quotidiano con semplici esercizi, trasformando ogni gesto in un'opportunità di presenza.</p>
                     </div>
                     <div class="card p-4">
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <p class="text-gray-500">Video 4 (Placeholder)</p>
+                            <!-- Placeholder for actual video embed -->
+                            <p class="text-gray-500">Video 4: Respiro Consapevole</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Consapevolezza del Respiro</h3>
-                        <p class="text-gray-600">Un esercizio fondamentale per riconnettersi con il proprio respiro e il momento presente.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Il Potere del Respiro Consapevole</h3>
+                        <p class="text-gray-600">Un esercizio fondamentale per riconnettersi con il proprio respiro, l'ancora del momento presente, e coltivare una maggiore stabilità emotiva.</p>
                     </div>
                     <div class="card p-4">
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <p class="text-gray-500">Video 5 (Placeholder)</p>
+                            <!-- Placeholder for actual video embed -->
+                            <p class="text-gray-500">Video 5: Mindfulness per il Sonno</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Mindfulness per il Sonno</h3>
-                        <p class="text-gray-600">Pratiche rilassanti per preparare la mente e il corpo a un riposo sereno.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness per un Sonno Riposante</h3>
+                        <p class="text-gray-600">Pratiche rilassanti e guidate per preparare la mente e il corpo a un riposo sereno e profondo, favorendo un sonno di qualità.</p>
                     </div>
                 </div>
             </div>
