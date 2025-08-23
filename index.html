@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="./js/enhanced-seo-optimizer.js" defer></script>
     <script type="module">
         // Firebase imports for authentication state check
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -37,22 +36,19 @@
         const updateHeaderAuthUI = (user) => {
             const authLinksNav = document.getElementById('auth-links-nav');
             const userProfileNav = document.getElementById('user-profile-nav');
-            const profileMenuIcon = document.getElementById('profile-menu-icon');
+            const userEmailDisplayNav = document.getElementById('user-email-display-nav');
             const logoutButtonNav = document.getElementById('logout-button-nav');
             const mobileAuthLinks = document.getElementById('mobile-auth-links');
             const mobileUserProfile = document.getElementById('mobile-user-profile');
             const logoutButtonMobile = document.getElementById('logout-button-mobile');
 
             // Ensure elements exist before trying to access their properties
-            if (authLinksNav && userProfileNav && mobileAuthLinks && mobileUserProfile) {
+            if (authLinksNav && userProfileNav && userEmailDisplayNav && mobileAuthLinks && mobileUserProfile) {
                 if (user && !user.isAnonymous) {
                     // User is logged in with email/password
                     authLinksNav.classList.add('hidden');
                     userProfileNav.classList.remove('hidden');
-                    // Show the hamburger menu icon instead of email for better privacy
-                    if (profileMenuIcon) {
-                        profileMenuIcon.classList.remove('hidden');
-                    }
+                    userEmailDisplayNav.textContent = user.email || 'Profilo';
                     
                     mobileAuthLinks.classList.add('hidden');
                     mobileUserProfile.classList.remove('hidden');
@@ -63,10 +59,7 @@
                     // User is not logged in or is anonymous
                     authLinksNav.classList.remove('hidden');
                     userProfileNav.classList.add('hidden');
-                    // Hide the hamburger menu icon
-                    if (profileMenuIcon) {
-                        profileMenuIcon.classList.add('hidden');
-                    }
+                    userEmailDisplayNav.textContent = '';
 
                     mobileAuthLinks.classList.remove('hidden');
                     mobileUserProfile.classList.add('hidden');
@@ -179,44 +172,19 @@
                 });
             }
 
-            // Dropdown toggle for profile management - improved version
-            const profileNav = document.getElementById('user-profile-nav');
-            const dropdownButton = document.querySelector('#user-profile-nav > a');
+            // Dropdown toggle for profile management
+            const dropdownButton = document.getElementById('user-email-display-nav');
             const dropdownMenu = document.getElementById('dropdown-menu-nav');
-            
-            if (profileNav && dropdownButton && dropdownMenu) {
-                // Create a separate dropdown toggle button
-                const menuToggle = document.createElement('button');
-                menuToggle.className = 'ml-2 text-gray-500 hover:text-gray-700 focus:outline-none';
-                menuToggle.setAttribute('aria-label', 'Toggle profile menu');
-                menuToggle.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                `;
-                
-                // Add the toggle button after the profile link
-                dropdownButton.insertAdjacentElement('afterend', menuToggle);
-                
-                // Add click handler to the toggle button
-                menuToggle.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
+            if (dropdownButton && dropdownMenu) {
+                dropdownButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent closing immediately if clicked on button
                     dropdownMenu.classList.toggle('hidden');
                 });
 
-                // Close dropdown when clicking outside
+                // Close dropdown if clicked outside
                 window.addEventListener('click', (event) => {
-                    if (!profileNav.contains(event.target)) {
+                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
                         dropdownMenu.classList.add('hidden');
-                    }
-                });
-                
-                // Add keyboard accessibility
-                menuToggle.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        dropdownMenu.classList.toggle('hidden');
                     }
                 });
             }
@@ -440,9 +408,231 @@
             });
         });
     </script>
-    <link rel="stylesheet" href="./css/styles.css">
-    <link rel="stylesheet" href="./css/embed3-style.css">
-    <link rel="stylesheet" href="./css/index-style.css">
+    <style>
+        /* Light Mode Defaults */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4; /* Soft off-white */
+            color: #333333; /* Darker, more readable text */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+            color: #6B7280; /* Slightly softer nav link color */
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #5A67D8; /* Primary accent blue */
+            border-bottom-color: #5A67D8;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .social-icon {
+            transition: transform 0.2s;
+        }
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Enhanced Slideshow Styles */
+        .slideshow-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .slide-item {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+        }
+
+        .main-slide {
+            z-index: 10;
+            position: relative;
+        }
+
+        .side-slide {
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+        }
+
+        .prev-slide {
+            left: -20%;
+            transform: translateY(-50%) scale(0.7) rotateY(-15deg);
+        }
+
+        .next-slide {
+            right: -20%;
+            transform: translateY(-50%) scale(0.7) rotateY(15deg);
+        }
+
+        .slideshow-image {
+            border-radius: 0.75rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .main-image {
+            width: 320px;
+            height: 240px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .main-image:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .side-image {
+            width: 200px;
+            height: 150px;
+            opacity: 0.8;
+            filter: grayscale(0.3);
+        }
+
+        .slide-title {
+            color: #374151;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .slide-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #374151;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 30;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .slide-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            color: #5A67D8;
+        }
+
+        .slide-button.left {
+            left: 1rem;
+        }
+
+        .slide-button.right {
+            right: 1rem;
+        }
+
+        .slide-indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+
+        .slide-indicator {
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .slideshow-wrapper {
+                height: 500px;
+                margin: 0 1rem;
+            }
+
+            .slideshow-container {
+                padding: 1rem;
+            }
+
+            .main-image {
+                width: 280px;
+                height: 210px;
+            }
+
+            .side-image {
+                width: 150px;
+                height: 112px;
+            }
+
+            .slide-button {
+                padding: 0.75rem;
+            }
+
+            .slide-title {
+                font-size: 1rem;
+                margin-top: 1rem;
+            }
+
+            .prev-slide, .next-slide {
+                display: none; /* Hide side slides on mobile for cleaner look */
+            }
+        }
+
+        @media (max-width: 640px) {
+            .slideshow-wrapper {
+                height: 450px;
+            }
+
+            .main-image {
+                width: 240px;
+                height: 180px;
+            }
+        }
+
+        /* Smooth loading animation */
+        .slideshow-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .slideshow-wrapper.loading::before {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body class="antialiased">
 
@@ -464,13 +654,10 @@
 
                 <!-- User Profile (hidden when logged out/anonymous) -->
                 <div id="user-profile-nav" class="relative group hidden">
-                    <a href="embed0.html" class="flex items-center space-x-2 nav-link py-2">
+                    <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
                         <img src="./fotoprofilo.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
-                        <!-- Hamburger menu icon instead of email for better privacy -->
-                        <svg id="profile-menu-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 hidden md:inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </a>
+                        <span class="hidden md:inline">Profilo</span>
+                    </button>
                     <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
                         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                             <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
@@ -500,8 +687,7 @@
             </div>
             <!-- Mobile User Profile (logout button only for simplicity) -->
             <div id="mobile-user-profile" class="hidden">
-                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Gestione Profilo</a>
-                <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
             </div>
         </div>
     </header>

@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="./js/enhanced-seo-optimizer.js" defer></script>
     <script type="module">
         // Firebase imports for authentication state check
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -167,44 +166,19 @@
                 });
             }
 
-            // Dropdown toggle for profile management - improved version
-            const profileNav = document.getElementById('user-profile-nav');
-            const dropdownButton = document.querySelector('#user-profile-nav > a');
+            // Dropdown toggle for profile management
+            const dropdownButton = document.getElementById('user-email-display-nav');
             const dropdownMenu = document.getElementById('dropdown-menu-nav');
-            
-            if (profileNav && dropdownButton && dropdownMenu) {
-                // Create a separate dropdown toggle button
-                const menuToggle = document.createElement('button');
-                menuToggle.className = 'ml-2 text-gray-500 hover:text-gray-700 focus:outline-none';
-                menuToggle.setAttribute('aria-label', 'Toggle profile menu');
-                menuToggle.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                `;
-                
-                // Add the toggle button after the profile link
-                dropdownButton.insertAdjacentElement('afterend', menuToggle);
-                
-                // Add click handler to the toggle button
-                menuToggle.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
+            if (dropdownButton && dropdownMenu) {
+                dropdownButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent closing immediately if clicked on button
                     dropdownMenu.classList.toggle('hidden');
                 });
 
-                // Close dropdown when clicking outside
+                // Close dropdown if clicked outside
                 window.addEventListener('click', (event) => {
-                    if (!profileNav.contains(event.target)) {
+                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
                         dropdownMenu.classList.add('hidden');
-                    }
-                });
-                
-                // Add keyboard accessibility
-                menuToggle.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        dropdownMenu.classList.toggle('hidden');
                     }
                 });
             }
@@ -232,9 +206,143 @@
             }
         });
     </script>
-    <link rel="stylesheet" href="./css/styles.css">
-    <link rel="stylesheet" href="./css/embed3-style.css">
-    <link rel="stylesheet" href="./css/embed1-style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4; /* Soft off-white */
+            color: #333333; /* Darker, more readable text */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+            color: #6B7280; /* Slightly softer nav link color */
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #5A67D8; /* Primary accent blue */
+            border-bottom-color: #5A67D8;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            transition: transform 0.3s, box-shadow 0.3s, opacity 0.6s;
+            transform: scale(0.9);
+            opacity: 0.7;
+        }
+        .card.in-view {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 45vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .factor-node {
+            cursor: pointer;
+            transition: all 0.5s ease-in-out;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            z-index: 10;
+            overflow: hidden;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+        .factor-node:hover {
+            transform: scale(1.05);
+            filter: brightness(0.95);
+        }
+        .factor-node.active {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+            z-index: 20;
+            overflow: visible;
+            padding: 2rem;
+        }
+        .factor-node .node-title {
+            display: block;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            transition: opacity 0.3s ease-in-out;
+            line-height: 1.1;
+        }
+        .factor-node.active .node-title {
+            display: none;
+            opacity: 0;
+        }
+        .factor-node .node-description {
+            display: none;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            word-wrap: break-word;
+            white-space: normal;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .factor-node.active .node-description {
+            display: block;
+            opacity: 1;
+        }
+        .node-teal { background-color: #38B2AC; }
+        .node-orange { background-color: #ED8936; }
+        .node-purple { background-color: #805AD5; }
+        .node-red { background-color: #E53E3E; }
+        .node-blue { background-color: #4299E1; }
+        
+        .source-link {
+            color: #5A67D8;
+            text-decoration: underline;
+        }
+        .source-list li {
+            margin-bottom: 0.75rem;
+        }
+        .source-list strong {
+            color: #3182CE;
+        }
+        .diagram-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            height: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        .diagram-line {
+            position: absolute;
+            background-color: #A0AEC0;
+            height: 2px;
+            transform-origin: 0 50%;
+            z-index: 5;
+            transition: all 0.5s ease-in-out;
+        }
+    </style>
 </head>
 <body class="antialiased">
 
@@ -256,10 +364,10 @@
 
                 <!-- User Profile (hidden when logged out/anonymous) -->
                 <div id="user-profile-nav" class="relative group hidden">
-                    <a href="embed0.html" class="flex items-center space-x-2 nav-link py-2">
-                        <img src="./fotoprofilo.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
-                        <span id="user-email-display-nav" class="hidden md:inline">Profilo</span>
-                    </a>
+                    <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
+                        <img src="https://placehold.co/32x32/A0AEC0/FFFFFF?text=CF" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <span class="hidden md:inline">Profilo</span>
+                    </button>
                     <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
                         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                             <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
@@ -289,8 +397,7 @@
             </div>
             <!-- Mobile User Profile (logout button only for simplicity) -->
             <div id="mobile-user-profile" class="hidden">
-                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Gestione Profilo</a>
-                <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
             </div>
         </div>
     </header>
