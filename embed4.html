@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Caterina Figlioli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/blog.css">
+    <script type="module">
+        // Firebase imports for authentication state check
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Added for cookie consent
+
+        // Your Firebase configuration (replace with your actual values)
+        const appId = 'mindfulnesscaterina'; // Your projectId
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAAqPJUTg0t8E",
+          authDomain: "mindfulnesscaterina.firebaseapp.com",
+          projectId: "mindfulnesscaterina",
+          storageBucket: "mindfulnesscaterina.firebasestorage.app",
+          messagingSenderId: "453448299797",
+          appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
+          measurementId: "G-1EKEWEBJDH"
+        };
+        const initialAuthToken = null; // Leave as null if not using custom tokens
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app); // Initialize Firestore
+
+        // Function to update header UI based on auth state
+        const updateHeaderAuthUI = (user) => {
+            const authLinksNav = document.getElementById('auth-links-nav');
+            const userProfileNav = document.getElementById('user-profile-nav');
+            const mobileAuthLinks = document.getElementById('mobile-auth-links');
+            const mobileUserProfile = document.getElementById('mobile-user-profile');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+            if (user && !user.isAnonymous) {
+                authLinksNav.classList.add('hidden');
+                userProfileNav.classList.remove('hidden');
+                
+                mobileAuthLinks.classList.add('hidden');
+                mobileUserProfile.classList.remove('hidden');
+                logoutButtonMobile.classList.remove('hidden');
+            } else {
+                authLinksNav.classList.remove('hidden');
+                userProfileNav.classList.add('hidden');
+
+                mobileAuthLinks.classList.remove('hidden');
+                mobileUserProfile.classList.add('hidden');
+                logoutButtonMobile.classList.add('hidden');
+            }
+        };
+
+        // Handle authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            updateHeaderAuthUI(user);
+        });
+
+        // Function to handle cookie consent
+        const handleCookieConsent = async (consentStatus) => {
+            const banner = document.getElementById('cookie-consent-banner');
+            if (banner) banner.classList.add('hidden');
+
+            localStorage.setItem('cookie_consent', consentStatus);
+
+            let userIdToStore = null;
+            let anonymousIdToStore = localStorage.getItem('anonymous_user_id'); // Get existing anonymous ID
+
+            // If user is logged in, use their UID
+            if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                userIdToStore = auth.currentUser.uid;
+                // If a logged-in user accepts, clear any anonymous ID as their consent is tied to their account
+                localStorage.removeItem('anonymous_user_id');
+            } else {
+                // If anonymous or not logged in, ensure an anonymous ID exists
+                if (!anonymousIdToStore) {
+                    anonymousIdToStore = 'anon_' + Date.now() + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('anonymous_user_id', anonymousIdToStore);
+                }
+            }
+
+            const consentData = {
+                consentStatus: consentStatus,
+                timestamp: new Date(),
+                // Add more details if you have a "Customize" option
+                // consentDetails: { analytics: true, marketing: false }
+            };
+
+            try {
+                let docRef;
+                if (userIdToStore) {
+                    docRef = doc(db, `artifacts/${appId}/userConsents`, userIdToStore);
+                } else {
+                    docRef = doc(db, `artifacts/${appId}/userConsents`, anonymousIdToStore);
+                }
+                await setDoc(docRef, consentData, { merge: true }); // Use merge to update existing consent
+                console.log("Cookie consent saved to Firestore:", consentData);
+            } catch (error) {
+                console.error("Error saving cookie consent to Firestore:", error);
+            }
+
+            // Here, you would conditionally load analytics scripts, etc.
+            // For example:
+            // if (consentStatus === 'accepted') {
+            //     loadGoogleAnalytics();
+            // }
+        };
+
+        // Initial sign-in with custom token or anonymously
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (initialAuthToken) {
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Signed in with custom token.");
+                } catch (error) {
+                    console.error("Error signing in with custom token:", error);
+                    await signInAnonymously(auth); // Fallback to anonymous
+                }
+            } else {
+                await signInAnonymously(auth);
+                console.log("Signed in anonymously.");
+            }
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Logout functionality for desktop dropdown
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            if (logoutButtonNav) {
+                logoutButtonNav.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        // UI will be updated by onAuthStateChanged listener
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Logout functionality for mobile menu
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        mobileMenu.classList.add('hidden'); // Hide mobile menu after logout
+                        // UI will be updated by onAuthStateChanged listener
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Dropdown toggle for profile management
+            const dropdownMenu = document.getElementById('dropdown-menu-nav');
+            if (dropdownMenu) {
+                // Close dropdown if clicked outside
+                window.addEventListener('click', (event) => {
+                    const dropdownToggle = document.getElementById('user-dropdown-toggle-nav');
+                    if (dropdownToggle && !dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Cookie Consent Logic
+            const consentGiven = localStorage.getItem('cookie_consent');
+            const banner = document.getElementById('cookie-consent-banner');
+
+            if (!consentGiven && banner) {
+                banner.classList.remove('hidden');
+            } else if (consentGiven === 'accepted') {
+                // User previously accepted, load necessary scripts (e.g., analytics)
+                // Example: loadGoogleAnalytics();
+            }
+
+            // Event listeners for consent buttons
+            const acceptButton = document.getElementById('accept-cookies');
+            const rejectButton = document.getElementById('reject-cookies');
+
+            if (acceptButton) {
+                acceptButton.addEventListener('click', () => handleCookieConsent('accepted'));
+            }
+            if (rejectButton) {
+                rejectButton.addEventListener('click', () => handleCookieConsent('rejected'));
+            }
+        });
+    </script>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2">Home</a>
+                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 active">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
+                
+                <!-- Auth Links (hidden when logged in) -->
+                <div id="auth-links-nav" class="flex space-x-8">
+                    <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
+                </div>
+
+                <!-- User Profile (hidden when logged out/anonymous) -->
+                <div id="user-profile-nav" class="relative group hidden">
+                    <button id="user-profile-button-nav" class="flex items-center space-x-2 nav-link py-2" onclick="window.location.href='embed0.html'">
+                        <img src="https://placehold.co/32x32/A0AEC0/FFFFFF?text=CF" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <button id="user-dropdown-toggle-nav" class="ml-2 p-1 rounded-full hover:bg-gray-100" onclick="event.stopPropagation(); document.getElementById('dropdown-menu-nav').classList.toggle('hidden');">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
+                            <a href="embed2.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">I Miei Corsi</a>
+                            <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Esci</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
+            
+            <!-- Mobile Auth Links -->
+            <div id="mobile-auth-links">
+                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
+            </div>
+            <!-- Mobile User Profile (logout button only for simplicity) -->
+            <div id="mobile-user-profile" class="hidden">
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-16">
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-8 text-center">Il Blog di Caterina Figlioli: Approfondimenti e Ispirazioni</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-12">Qui troverai articoli e riflessioni sulla mindfulness, lo yoga, il benessere e la crescita personale. Un luogo dove nutrire la mente e lo spirito, accompagnandoti nel tuo percorso di consapevolezza.</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Blog Article 1 -->
+                <div class="blog-card p-6">
+                    <img src="https://placehold.co/400x250/E2E8F0/4A4A4A?text=Mindfulness+Mattutina" alt="Immagine Articolo 1: Mindfulness Mattutina" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">La Mindfulness per Iniziare Bene la Giornata</h3>
+                    <p class="text-gray-600 text-sm mb-4">Scopri come pochi minuti di consapevolezza al mattino possono trasformare la tua intera giornata, portando calma e chiarezza fin dalle prime ore.</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
+                </div>
+
+                <!-- Blog Article 2 -->
+                <div class="blog-card p-6">
+                    <img src="https://placehold.co/400x250/A0AEC0/FFFFFF?text=Yoga+e+Mindfulness" alt="Immagine Articolo 2: Yoga e Mindfulness" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Yoga e Mindfulness: Un'Unione Perfetta per il Benessere</h3>
+                    <p class="text-gray-600 text-sm mb-4">Esplora come le pratiche millenarie di yoga e mindfulness si completano a vicenda, offrendo un percorso olistico per il benessere di corpo e mente.</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
+                </div>
+
+                <!-- Blog Article 3 -->
+                <div class="blog-card p-6">
+                    <img src="https://placehold.co/400x250/718096/FFFFFF?text=Gestione+Stress" alt="Immagine Articolo 3: Gestione Stress" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Come Gestire lo Stress con la Consapevolezza</h3>
+                    <p class="text-gray-600 text-sm mb-4">Tecniche semplici ed efficaci per affrontare i momenti di tensione e ansia con maggiore calma, trasformando le reazioni automatiche in risposte consapevoli.</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
+                </div>
+
+                <!-- Blog Article 4 -->
+                <div class="blog-card p-6">
+                    <img src="https://placehold.co/400x250/9F7AEA/FFFFFF?text=Mindfulness+Genitori" alt="Immagine Articolo 4: Mindfulness Genitori" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness per Genitori: Coltivare la Pazienza e la Presenza</h3>
+                    <p class="text-gray-600 text-sm mb-4">Consigli pratici e ispirazioni per i genitori che desiderano portare più consapevolezza, calma e armonia nella dinamica familiare quotidiana.</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
+                </div>
+
+                <!-- Blog Article 5 -->
+                <div class="blog-card p-6">
+                    <img src="https://placehold.co/400x250/4FD1C5/FFFFFF?text=Respiro+Consapevole" alt="Immagine Articolo 5: Respiro Consapevole" class="rounded-md mb-4 w-full h-48 object-cover">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Il Potere Trasformativo del Respiro Consapevole</h3>
+                    <p class="text-gray-600 text-sm mb-4">Un'esplorazione approfondita di una delle pratiche fondamentali della mindfulness, il respiro, come strumento potente per il benessere fisico e mentale.</p>
+                    <a href="#" class="text-blue-60

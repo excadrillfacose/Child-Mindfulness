@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Profilo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const appId = 'mindfulnesscaterina';
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAAqPJUTg0t8E",
+          authDomain: "mindfulnesscaterina.firebaseapp.com",
+          projectId: "mindfulnesscaterina",
+          storageBucket: "mindfulnesscaterina.firebasestorage.app",
+          messagingSenderId: "453448299797",
+          appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
+          measurementId: "G-1EKEWEBJDH"
+        };
+        const initialAuthToken = null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUserId = null;
+
+        // Function to show/hide messages
+        const showMessage = (message, type = 'info') => {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.className = `p-3 rounded-md mb-4 text-center ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        };
+
+        // Function to update header UI based on auth state
+        const updateHeaderAuthUI = (user) => {
+            const authLinksNav = document.getElementById('auth-links-nav');
+            const userProfileNav = document.getElementById('user-profile-nav');
+            const mobileAuthLinks = document.getElementById('mobile-auth-links');
+            const mobileUserProfile = document.getElementById('mobile-user-profile');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+            if (user && !user.isAnonymous) {
+                authLinksNav.classList.add('hidden');
+                userProfileNav.classList.remove('hidden');
+                
+                mobileAuthLinks.classList.add('hidden');
+                mobileUserProfile.classList.remove('hidden');
+                logoutButtonMobile.classList.remove('hidden');
+            } else {
+                authLinksNav.classList.remove('hidden');
+                userProfileNav.classList.add('hidden');
+
+                mobileAuthLinks.classList.remove('hidden');
+                mobileUserProfile.classList.add('hidden');
+                logoutButtonMobile.classList.add('hidden');
+            }
+        };
+
+        // Load user profile data
+        const loadUserProfile = async (user) => {
+            try {
+                const profileDoc = await getDoc(doc(db, `artifacts/${appId}/users/${user.uid}/profile`, 'data'));
+                if (profileDoc.exists()) {
+                    const data = profileDoc.data();
+                    document.getElementById('profile-name').value = data.name || '';
+                    document.getElementById('profile-phone').value = data.phone || '';
+                    document.getElementById('profile-created').textContent = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString('it-IT') : 'Non disponibile';
+                    document.getElementById('first-appointment-status').textContent = data.hasFirstAppointment ? 'Utilizzato' : 'Disponibile';
+                    document.getElementById('total-appointments').textContent = data.totalAppointments || 0;
+                }
+            } catch (error) {
+                console.error("Error loading profile:", error);
+            }
+        };
+
+        // Load user appointments
+        const loadUserAppointments = async (userId) => {
+            try {
+                const appointmentsQuery = query(
+                    collection(db, `artifacts/${appId}/appointments`),
+                    where('userId', '==', userId)
+                );
+                const querySnapshot = await getDocs(appointmentsQuery);
+                
+                const appointmentsList = document.getElementById('appointments-list');
+                appointmentsList.innerHTML = '';
+
+                if (querySnapshot.empty) {
+                    appointmentsList.innerHTML = '<p class="text-gray-500 text-center py-4">Nessun appuntamento trovato.</p>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const appointment = doc.data();
+                    const appointmentElement = document.createElement('div');
+                    appointmentElement.className = 'bg-white p-4 rounded-lg border border-gray-200 mb-3';
+                    
+                    const statusColor = {
+                        'pending': 'text-yellow-600 bg-yellow-100',
+                        'confirmed': 'text-green-600 bg-green-100',
+                        'completed': 'text-blue-600 bg-blue-100',
+                        'cancelled': 'text-red-600 bg-red-100'
+                    };
+
+                    const paymentColor = {
+                        'free': 'text-green-600 bg-green-100',
+                        'pending': 'text-yellow-600 bg-yellow-100',
+                        'paid': 'text-blue-600 bg-blue-100'
+                    };
+
+                    appointmentElement.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-semibold text-gray-800">${appointment.appointmentType === 'first' ? 'Primo Appuntamento' : 'Appuntamento di Follow-up'}</h4>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColor[appointment.status] || 'text-gray-600 bg-gray-100'}">${appointment.status}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-1"><strong>Data:</strong> ${appointment.preferredDate}</p>
+                        <p class="text-sm text-gray-600 mb-1"><strong>Ora:</strong> ${appointment.preferredTime}</p>
+                        <p class="text-sm text-gray-600 mb-2"><strong>Pagamento:</strong> <span class="px-2 py-1 rounded-full text-xs font-medium ${paymentColor[appointment.paymentStatus] || 'text-gray-600 bg-gray-100'}">${appointment.paymentStatus === 'free' ? 'Gratuito' : appointment.paymentStatus === 'paid' ? 'Pagato' : 'In attesa'}</span></p>
+                        ${appointment.message ? `<p class="text-sm text-gray-600"><strong>Messaggio:</strong> ${appointment.message}</p>` : ''}
+                    `;
+                    
+                    appointmentsList.appendChild(appointmentElement);
+                });
+            } catch (error) {
+                console.error("Error loading appointments:", error);
+                document.getElementById('appointments-list').innerHTML = '<p class="text-red-500 text-center py-4">Errore nel caricamento degli appuntamenti.</p>';
+            }
+        };
+
+        // Handle authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            const authSection = document.getElementById('auth-section');
+            const profileSection = document.getElementById('profile-section');
+            const userEmailDisplay = document.getElementById('user-email-display');
+            const userIdDisplay = document.getElementById('user-id-display');
+
+            updateHeaderAuthUI(user);
+
+            if (user && !user.isAnonymous) {
+                currentUserId = user.uid;
+                authSection.classList.add('hidden');
+                profileSection.classList.remove('hidden');
+                userEmailDisplay.textContent = user.email || 'Utente Anonimo';
+                userIdDisplay.textContent = `ID Utente: ${user.uid}`;
+                
+                await loadUserProfile(user);
+                await loadUserAppointments(user.uid);
+            } else {
+                currentUserId = null;
+                authSection.classList.remove('hidden');
+                profileSection.classList.add('hidden');
+                userEmailDisplay.textContent = '';
+                userIdDisplay.textContent = '';
+            }
+        });
+
+        // Function to handle cookie consent
+        const handleCookieConsent = async (consentStatus) => {
+            const banner = document.getElementById('cookie-consent-banner');
+            if (banner) banner.classList.add('hidden');
+
+            localStorage.setItem('cookie_consent', consentStatus);
+
+            let userIdToStore = null;
+            let anonymousIdToStore = localStorage.getItem('anonymous_user_id'); // Get existing anonymous ID
+
+            // If user is logged in, use their UID
+            if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                userIdToStore = auth.currentUser.uid;
+                // If a logged-in user accepts, clear any anonymous ID as their consent is tied to their account
+                localStorage.removeItem('anonymous_user_id');
+            } else {
+                // If anonymous or not logged in, ensure an anonymous ID exists
+                if (!anonymousIdToStore) {
+                    anonymousIdToStore = 'anon_' + Date.now() + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('anonymous_user_id', anonymousIdToStore);
+                }
+            }
+
+            const consentData = {
+                consentStatus: consentStatus,
+                timestamp: new Date(),
+                // Add more details if you have a "Customize" option
+                // consentDetails: { analytics: true, marketing: false }
+            };
+
+            try {
+                let docRef;
+                if (userIdToStore) {
+                    docRef = doc(db, `artifacts/${appId}/userConsents`, userIdToStore);
+                } else {
+                    docRef = doc(db, `artifacts/${appId}/userConsents`, anonymousIdToStore);
+                }
+                await setDoc(docRef, consentData, { merge: true }); // Use merge to update existing consent
+                console.log("Cookie consent saved to Firestore:", consentData);
+            } catch (error) {
+                console.error("Error saving cookie consent to Firestore:", error);
+            }
+
+            // Here, you would conditionally load analytics scripts, etc.
+            // For example:
+            // if (consentStatus === 'accepted') {
+            //     loadGoogleAnalytics();
+            // }
+        };
+
+        // Initial sign-in
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (initialAuthToken) {
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } catch (error) {
+                    console.error("Error signing in with custom token:", error);
+                    showMessage(`Errore nell'accesso automatico: ${error.message}`, 'error');
+                    await signInAnonymously(auth);
+                }
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Logout functionality for desktop dropdown
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            if (logoutButtonNav) {
+                logoutButtonNav.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Logout functionality for mobile menu
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        mobileMenu.classList.add('hidden');
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Dropdown toggle for profile management
+            const dropdownMenu = document.getElementById('dropdown-menu-nav');
+            if (dropdownMenu) {
+                // Close dropdown if clicked outside
+                window.addEventListener('click', (event) => {
+                    const dropdownToggle = document.getElementById('user-dropdown-toggle-nav');
+                    if (dropdownToggle && !dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Cookie Consent Logic
+            const consentGiven = localStorage.getItem('cookie_consent');
+            const banner = document.getElementById('cookie-consent-banner');
+
+            if (!consentGiven && banner) {
+                banner.classList.remove('hidden');
+            } else if (consentGiven === 'accepted') {
+                // User previously accepted, load necessary scripts (e.g., analytics)
+                // Example: loadGoogleAnalytics();
+            }
+
+            // Event listeners for consent buttons
+            const acceptButton = document.getElementById('accept-cookies');
+            const rejectButton = document.getElementById('reject-cookies');
+
+            if (acceptButton) {
+                acceptButton.addEventListener('click', () => handleCookieConsent('accepted'));
+            }
+            if (rejectButton) {
+                rejectButton.addEventListener('click', () => handleCookieConsent('rejected'));
+            }
+        });
+
+        // Handle Registration
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`, 'data'), {
+                    email: email,
+                    createdAt: new Date(),
+                    hasFirstAppointment: false,
+                    totalAppointments: 0
+                });
+                showMessage('Registrazione avvenuta con successo! Ora sei loggato.', 'success');
+            } catch (error) {
+                console.error("Error during registration:", error);
+                showMessage(`Errore nella registrazione: ${error.message}`, 'error');
+            }
+        });
+
+        // Handle Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage('Accesso effettuato con successo!', 'success');
+            } catch (error) {
+                console.error("Error during login:", error);
+                showMessage(`Errore nell'accesso: ${error.message}`, 'error');
+            }
+        });
+
+        // Handle Profile Update
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/profile`, 'data'), {
+                        name: name,
+                        phone: phone,
+                        updatedAt: new Date()
+                    });
+                    showMessage('Profilo aggiornato con successo!', 'success');
+                }
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                showMessage(`Errore nell'aggiornamento del profilo: ${error.message}`, 'error');
+            }
+        });
+
+        // Handle Email Update
+        document.getElementById('email-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newEmail = document.getElementById('new-email').value;
+            const currentPassword = document.getElementById('current-password-email').value;
+
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    await updateEmail(user, newEmail);
+                    
+                    await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/profile`, 'data'), {
+                        email: newEmail,
+                        updatedAt: new Date()
+                    });
+                    
+                    showMessage('Email aggiornata con successo!', 'success');
+                    document.getElementById('email-form').reset();
+                }
+            } catch (error) {
+                console.error("Error updating email:", error);
+                showMessage(`Errore nell'aggiornamento dell'email: ${error.message}`, 'error');
+            }
+        });
+
+        // Handle Password Update
+        document.getElementById('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                showMessage('Le nuove password non corrispondono.', 'error');
+                return;
+            }
+
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                    await reauthenticateWithCredential(user, credential);
+                    await updatePassword(user, newPassword);
+                    
+                    showMessage('Password aggiornata con successo!', 'success');
+                    document.getElementById('password-form').reset();
+                }
+            } catch (error) {
+                console.error("Error updating password:", error);
+                showMessage(`Errore nell'aggiornamento della password: ${error.message}`, 'error');
+            }
+        });
+
+        // Handle Logout from profile section
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showMessage('Disconnessione avvenuta con successo.', 'info');
+            } catch (error) {
+                console.error("Error during logout:", error);
+                showMessage(`Errore durante la disconnessione: ${error.message}`, 'error');
+            }
+        });
+
+        // Tab switching functionality
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('bg-blue-500', 'text-white');
+                button.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            document.getElementById(tabName).classList.remove('hidden');
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.remove('bg-gray-200', 'text-gray-700');
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('bg-blue-500', 'text-white');
+        };
+    </script>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2">Home</a>
+                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
+                
+                <div id="auth-links-nav" class="flex space-x-8">
+                    <a href="embed0.html" class="nav-link py-2 active">Accedi / Registrati</a>
+                </div>
+
+                <div id="user-profile-nav" class="relative group hidden">
+                    <button id="user-profile-button-nav" class="flex items-center space-x-2 nav-link py-2" onclick="window.location.href='embed0.html'">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/104c91f9-5afc-49fe-9821-e21374642ab6.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <button id="user-dropdown-toggle-nav" class="ml-2 p-1 rounded-full hover:bg-gray-100" onclick="event.stopPropagation(); document.getElementById('dropdown-menu-nav').classList.toggle('hidden');">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+                        <div class="py-1">
+                            <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Impostazioni Account</a>
+                            <a href="embed2.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">I Miei Corsi</a>
+                            <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Esci</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
+            
+            <div id="mobile-auth-links">
+                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
+            </div>
+            <div id="mobile-user-profile" class="hidden">
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-16">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div id="message-box" class="hidden"></div>
+
+            <!-- Authentication Section -->
+            <div id="auth-section" class="bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Accedi o Registrati</h2>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Accedi al Tuo Account</h3>
+                        <form id="login-form">
+                            <div class="mb-4">
+                                <label for="login-email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                                <input type="email" id="login-email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                            </div>
+                            <div class="mb-6">
+                                <label for="login-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                                <input type="password" id="login-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
+                            </div>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md w-full transition duration-300">Accedi</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Crea un Nuovo Account</h3>
+                        <form id="register-form">
+                            <div class="mb-4">
+                                <label for="register-email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                                <input type="email" id="register-email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                            </div>
+                            <div class="mb-6">
+                                <label for="register-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                                <input type="password" id="register-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
+                            </div>
+                            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md w-full transition duration-300">Registrati</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Management Section -->
+            <div id="profile-section" class="bg-white p-8 rounded-lg shadow-lg hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Il Tuo Profilo</h2>
+                <div class="text-center mb-6">
+                    <p class="text-lg text-gray-700">Benvenuto, <span id="user-email-display" class="font-semibold"></span>!</p>
+                    <p class="text-sm text-gray-500" id="user-id-display"></p>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="flex space-x-8">
+                        <button onclick="switchTab('profile-info')" class="tab-button bg-blue-500 text-white py-2 px-4 rounded-t-lg font-medium">Informazioni Profilo</button>
+                        <button onclick="switchTab('security-settings')" class="tab-button bg-gray-200 text-gray-700 py-2 px-4 rounded-t-lg font-medium">Sicurezza</button>
+                        <button onclick="switchTab('appointments-tab')" class="tab-button bg-gray-200 text-gray-700 py-2 px-4 rounded-t-lg font-medium">I Miei Appuntamenti</button>
+                    </nav>
+                </div>
+
+                <!-- Profile Info Tab -->
+                <div id="profile-info" class="tab-content">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Informazioni del Profilo</h3>
+                    <form id="profile-form" class="mb-6">
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="profile-name" class="block text-gray-700 text-sm font-bold mb-2">Nome Completo:</label>
+                                <input type="text" id="profile-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div>
+                                <label for="profile-phone" class="block text-gray-700 text-sm font-bold mb-2">Telefono:</label>
+                                <input type="tel" id="profile-phone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">Aggiorna Profilo</button>
+                    </form>
+
+                    <!-- Account Stats -->
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-700 mb-2">Statistiche Account</h4>
+                        <div class="grid md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Registrato il:</span>
+                                <span id="profile-created" class="font-medium"></span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Primo appuntamento:</span>
+                                <span id="first-appointment-status" class="font-medium"></span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Appuntamenti totali:</span>
+                                <span id="total-appointments" class="font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings Tab -->
+                <div id="security-settings" class="tab-content hidden">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Impostazioni di Sicurezza</h3>
+                    
+                    <!-- Change Email -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-medium text-gray-700 mb-3">Cambia Email</h4>
+                        <form id="email-form">
+                            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="new-email" class="block text-gray-700 text-sm font-bold mb-2">Nuova Email:</label>
+                                    <input type="email" id="new-email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                </div>
+                                <div>
+                                    <label for="current-password-email" class="block text-gray-700 text-sm font-bold mb-2">Password Attuale:</label>
+                                    <input type="password" id="current-password-email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded transition duration-300">Aggiorna Email</button>
+                        </form>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-medium text-gray-700 mb-3">Cambia Password</h4>
+                        <form id="password-form">
+                            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label for="current-password" class="block text-gray-700 text-sm font-bold mb-2">Password Attuale:</label>
+                                    <input type="password" id="current-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                </div>
+                                <div>
+                                    <label for="new-password" class="block text-gray-700 text-sm font-bold mb-2">Nuova Password:</label>
+                                    <input type="password" id="new-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                </div>
+                                <div>
+                                    <label for="confirm-password" class="block text-gray-700 text-sm font-bold mb-2">Conferma Password:</label>
+                                    <input type="password" id="confirm-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300">Aggiorna Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Appointments Tab -->
+                <div id="appointments-tab" class="tab-content hidden">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">I Miei Appuntamenti</h3>
+                    <div id="appointments-list" class="space-y-4">
+                        <!-- Appointments will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Logout Button -->
+                <div class="mt-8 text-center">
+                    <button id="logout-button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300">Esci dall'Account</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p>© 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col md:flex-row items-center justify-between z-50 hidden">
+        <p class="text-sm text-center md:text-left mb-2 md:mb-0">
+            Utilizziamo i cookie per migliorare la tua esperienza di navigazione. Continuando a navigare accetti l'uso dei cookie. Per maggiori informazioni, consulta la nostra <a href="/privacy-policy.html" class="underline text-blue-400 hover:text-blue-300">Informativa sulla Privacy</a>.
+        </p>
+        <div class="flex space-x-2">
+            <button id="accept-cookies" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition duration-300">Accetta Tutto</button>
+            <button id="reject-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm transition duration-300">Rifiuta</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportello di Ascolto - Prenota Appuntamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const appId = 'mindfulnesscaterina';
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAAqPJUTg0t8E",
+          authDomain: "mindfulnesscaterina.firebaseapp.com",
+          projectId: "mindfulnesscaterina",
+          storageBucket: "mindfulnesscaterina.firebasestorage.app",
+          messagingSenderId: "453448299797",
+          appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
+          measurementId: "G-1EKEWEBJDH"
+        };
+        const initialAuthToken = null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // EmailJS Configuration (Replace with your actual keys)
+        const EMAILJS_SERVICE_ID = 'your_service_id';
+        const EMAILJS_TEMPLATE_ID = 'your_template_id';
+        const EMAILJS_PUBLIC_KEY = 'your_public_key';
+
+        // Stripe Configuration (Replace with your actual publishable key)
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_your_stripe_key';
+        const stripe = window.Stripe ? window.Stripe(STRIPE_PUBLISHABLE_KEY) : null;
+
+        let currentUser = null;
+        let settings = null;
+
+        // Initialize EmailJS
+        if (window.emailjs) {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+        }
+
+        // Function to show/hide messages
+        const showMessage = (message, type = 'info') => {
+            const messageBox = document.getElementById('message-box');
+            messageBox.textContent = message;
+            messageBox.className = `p-4 rounded-lg mb-6 text-center font-medium ${type === 'error' ? 'bg-red-100 text-red-700 border border-red-200' : type === 'warning' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' : 'bg-green-100 text-green-700 border border-green-200'}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 7000);
+        };
+
+        // Function to update header UI based on auth state
+        const updateHeaderAuthUI = (user) => {
+            const authLinksNav = document.getElementById('auth-links-nav');
+            const userProfileNav = document.getElementById('user-profile-nav');
+            const mobileAuthLinks = document.getElementById('mobile-auth-links');
+            const mobileUserProfile = document.getElementById('mobile-user-profile');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+            if (user && !user.isAnonymous) {
+                authLinksNav.classList.add('hidden');
+                userProfileNav.classList.remove('hidden');
+                
+                mobileAuthLinks.classList.add('hidden');
+                mobileUserProfile.classList.remove('hidden');
+                logoutButtonMobile.classList.remove('hidden');
+            } else {
+                authLinksNav.classList.remove('hidden');
+                userProfileNav.classList.add('hidden');
+
+                mobileAuthLinks.classList.remove('hidden');
+                mobileUserProfile.classList.add('hidden');
+                logoutButtonMobile.classList.add('hidden');
+            }
+        };
+
+        // Load settings from Firebase
+        const loadSettings = async () => {
+            try {
+                const settingsDoc = await getDoc(doc(db, `artifacts/${appId}/settings`, 'general'));
+                if (settingsDoc.exists()) {
+                    settings = settingsDoc.data();
+                    console.log("Settings loaded:", settings); // Debugging
+                    return settings;
+                }
+                throw new Error('Settings document not found in Firestore.');
+            } catch (error) {
+                console.error("Error loading settings:", error);
+                showMessage('Errore nel caricamento delle impostazioni. Assicurati che il documento "general" esista nella collezione "settings" di Firestore.', 'error');
+                return null;
+            }
+        };
+
+        // Get user profile data
+        const getUserProfile = async (userId) => {
+            try {
+                const profileDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'));
+                return profileDoc.exists() ? profileDoc.data() : null;
+            } catch (error) {
+                console.error("Error getting user profile:", error);
+                return null;
+            }
+        };
+
+        // Check if date is available
+        const checkDateAvailability = (date, availableDays) => {
+            const dayOfWeek = new Date(date).getDay();
+            return availableDays.includes(dayOfWeek);
+        };
+
+        // Generate available time slots
+        const generateAvailableTimeSlots = async (selectedDate) => {
+            if (!settings || !settings.availableHours) {
+                console.warn("Settings or availableHours not loaded for time slot generation.");
+                return [];
+            }
+
+            const { availableHours } = settings;
+            const availabilityDoc = await getDoc(doc(db, `artifacts/${appId}/availability`, selectedDate));
+            
+            const timeSlots = availableHours.map(hour => ({
+                time: hour,
+                available: true,
+                appointmentId: null
+            }));
+
+            if (availabilityDoc.exists()) {
+                const existingSlots = availabilityDoc.data().timeSlots || {};
+                timeSlots.forEach(slot => {
+                    if (existingSlots[slot.time]) {
+                        slot.available = existingSlots[slot.time].available;
+                        slot.appointmentId = existingSlots[slot.time].appointmentId;
+                    }
+                });
+            }
+
+            return timeSlots.filter(slot => slot.available);
+        };
+
+        // Update availability after booking
+        const updateAvailability = async (date, time, appointmentId) => {
+            try {
+                const availabilityRef = doc(db, `artifacts/${appId}/availability`, date);
+                const availabilityDoc = await getDoc(availabilityRef);
+                
+                let timeSlots = {};
+                if (availabilityDoc.exists()) {
+                    timeSlots = availabilityDoc.data().timeSlots || {};
+                }
+
+                timeSlots[time] = {
+                    available: false,
+                    appointmentId: appointmentId
+                };
+
+                await setDoc(availabilityRef, {
+                    date: date,
+                    timeSlots: timeSlots
+                }, { merge: true });
+
+            } catch (error) {
+                console.error("Error updating availability:", error);
+                throw error;
+            }
+        };
+
+        // Send email notification
+        const sendEmailNotification = async (appointmentData, isToCustomer = false) => {
+            if (!window.emailjs || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+                console.warn("EmailJS not configured or initialized. Skipping email notification.");
+                return false;
+            }
+
+            try {
+                const templateParams = {
+                    to_email: isToCustomer ? appointmentData.userEmail : settings.businessEmail,
+                    customer_name: appointmentData.userName,
+                    customer_email: appointmentData.userEmail,
+                    customer_phone: appointmentData.userPhone,
+                    appointment_date: appointmentData.preferredDate,
+                    appointment_time: appointmentData.preferredTime,
+                    appointment_type: appointmentData.appointmentType === 'first' ? 'Primo Appuntamento (Gratuito)' : 'Appuntamento di Follow-up',
+                    message: appointmentData.message,
+                    payment_status: appointmentData.paymentStatus === 'free' ? 'Gratuito' : 'A pagamento'
+                };
+
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                return true;
+            } catch (error) {
+                console.error("Error sending email:", error);
+                return false;
+            }
+        };
+
+        // Handle appointment booking
+        const bookAppointment = async (appointmentData) => {
+            try {
+                // Create appointment in database
+                const appointmentRef = await addDoc(collection(db, `artifacts/${appId}/appointments`), {
+                    ...appointmentData,
+                    createdAt: new Date(),
+                    status: 'pending'
+                });
+
+                // Update availability
+                await updateAvailability(appointmentData.preferredDate, appointmentData.preferredTime, appointmentRef.id);
+
+                // Update user profile
+                const userProfile = await getUserProfile(currentUser.uid);
+                if (userProfile) {
+                    await updateDoc(doc(db, `artifacts/${appId}/users/${currentUser.uid}/profile`, 'data'), {
+                        hasFirstAppointment: appointmentData.appointmentType === 'first' ? true : userProfile.hasFirstAppointment,
+                        totalAppointments: (userProfile.totalAppointments || 0) + 1,
+                        updatedAt: new Date()
+                    });
+                }
+
+                // Send email notifications
+                await sendEmailNotification(appointmentData, false); // To business
+                await sendEmailNotification(appointmentData, true);  // To customer
+
+                return appointmentRef.id;
+            } catch (error) {
+                console.error("Error booking appointment:", error);
+                throw error;
+            }
+        };
+
+        // Handle authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            updateHeaderAuthUI(user);
+
+            const bookingSection = document.getElementById('booking-section');
+            const loginPrompt = document.getElementById('login-prompt');
+
+            if (user && !user.isAnonymous) {
+                bookingSection.classList.remove('hidden');
+                loginPrompt.classList.add('hidden');
+                
+                // Load user profile and populate form
+                const profile = await getUserProfile(user.uid);
+                if (profile) {
+                    document.getElementById('user-name').value = profile.name || '';
+                    document.getElementById('user-phone').value = profile.phone || '';
+                    document.getElementById('user-email').value = user.email || '';
+                    
+                    // Update appointment type indicator
+                    const isFirstAppointment = !profile.hasFirstAppointment;
+                    const appointmentTypeIndicator = document.getElementById('appointment-type-indicator');
+                    if (appointmentTypeIndicator) {
+                        appointmentTypeIndicator.innerHTML = isFirstAppointment 
+                            ? '<span class="text-green-600 font-semibold">✨ Primo Appuntamento - GRATUITO</span>'
+                            : '<span class="text-blue-600 font-semibold">💼 Appuntamento di Follow-up - €50</span>'; // Price will be updated by loadSettings
+                    }
+                }
+            } else {
+                bookingSection.classList.add('hidden');
+                loginPrompt.classList.remove('hidden');
+            }
+        });
+
+        // Generate date options
+        const generateDateOptions = () => {
+            if (!settings || !settings.availableDays || !settings.maxAdvanceBookingDays) {
+                console.warn("Settings not fully loaded for date options generation.");
+                return;
+            }
+
+            const dateSelect = document.getElementById('preferred-date');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today to start of day
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + settings.maxAdvanceBookingDays);
+
+            dateSelect.innerHTML = '<option value="">Seleziona una data</option>';
+
+            for (let d = new Date(today); d <= maxDate; d.setDate(d.getDate() + 1)) {
+                if (checkDateAvailability(d.getTime(), settings.availableDays)) { // Pass timestamp for consistency
+                    const dateString = d.toISOString().split('T')[0];
+                    const dateDisplay = d.toLocaleDateString('it-IT', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    
+                    const option = document.createElement('option');
+                    option.value = dateString;
+                    option.textContent = dateDisplay;
+                    dateSelect.appendChild(option);
+                }
+            }
+        };
+
+        // Handle date selection
+        const handleDateSelection = async () => {
+            const selectedDate = document.getElementById('preferred-date').value;
+            const timeSelect = document.getElementById('preferred-time');
+            
+            if (!selectedDate) {
+                timeSelect.innerHTML = '<option value="">Prima seleziona una data</option>';
+                return;
+            }
+
+            try {
+                const availableSlots = await generateAvailableTimeSlots(selectedDate);
+                timeSelect.innerHTML = '<option value="">Seleziona un orario</option>';
+
+                availableSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot.time;
+                    option.textContent = slot.time;
+                    timeSelect.appendChild(option);
+                });
+
+                if (availableSlots.length === 0) {
+                    timeSelect.innerHTML = '<option value="">Nessun orario disponibile per questa data</option>';
+                    showMessage('Non ci sono orari disponibili per la data selezionata. Prova con un\'altra data.', 'warning');
+                }
+            } catch (error) {
+                console.error("Error loading time slots:", error);
+                showMessage('Errore nel caricamento degli orari disponibili.', 'error');
+            }
+        };
+
+        // Check appointment eligibility
+        const checkAppointmentEligibility = async (userId) => {
+            const profile = await getUserProfile(userId);
+            return profile ? !profile.hasFirstAppointment : true;
+        };
+
+        // Handle form submission
+        const handleFormSubmission = async (event) => {
+            event.preventDefault();
+
+            if (!currentUser || currentUser.isAnonymous) {
+                showMessage('Devi essere loggato per prenotare un appuntamento.', 'error');
+                return;
+            }
+
+            const formData = new FormData(event.target);
+            const isFirstAppointment = await checkAppointmentEligibility(currentUser.uid);
+            
+            const appointmentData = {
+                userId: currentUser.uid,
+                userEmail: formData.get('user-email'),
+                userName: formData.get('user-name'),
+                userPhone: formData.get('user-phone'),
+                appointmentType: isFirstAppointment ? 'first' : 'follow-up',
+                preferredDate: formData.get('preferred-date'),
+                preferredTime: formData.get('preferred-time'),
+                message: formData.get('message'),
+                paymentStatus: isFirstAppointment ? 'free' : 'pending',
+                paymentIntentId: null
+            };
+
+            // Validate required fields
+            if (!appointmentData.userName || !appointmentData.userPhone || !appointmentData.preferredDate || !appointmentData.preferredTime) {
+                showMessage('Per favore compila tutti i campi obbligatori.', 'error');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const submitButton = document.getElementById('submit-button');
+                const originalText = submitButton.textContent;
+                submitButton.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Prenotando...
+                `;
+                submitButton.disabled = true;
+
+                // Book the appointment
+                const appointmentId = await bookAppointment(appointmentData);
+                
+                showMessage(
+                    isFirstAppointment 
+                        ? '🎉 Primo appuntamento prenotato con successo! Ti contatteremo presto per la conferma.' 
+                        : '✅ Appuntamento prenotato con successo! Ti contatteremo per la conferma e il pagamento.',
+                    'success'
+                );
+
+                // Reset form
+                event.target.reset();
+                document.getElementById('preferred-time').innerHTML = '<option value="">Prima seleziona una data</option>';
+
+                // Trigger celebration animation
+                triggerCelebration();
+
+                // Restore button
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+
+            } catch (error) {
+                console.error("Error booking appointment:", error);
+                showMessage(error.message || 'Errore nella prenotazione dell\'appuntamento. Riprova.', 'error');
+                
+                // Restore button
+                const submitButton = document.getElementById('submit-button');
+                submitButton.innerHTML = 'Prenota il Tuo Appuntamento';
+                submitButton.disabled = false;
+            }
+        };
+
+        // Celebration animation
+        const triggerCelebration = () => {
+            const celebration = document.getElementById('celebration');
+            celebration.classList.remove('hidden');
+            celebration.classList.add('animate-bounce');
+            
+            setTimeout(() => {
+                celebration.classList.add('hidden');
+                celebration.classList.remove('animate-bounce');
+            }, 3000);
+        };
+
+        // Function to handle cookie consent
+        const handleCookieConsent = async (consentStatus) => {
+            const banner = document.getElementById('cookie-consent-banner');
+            if (banner) banner.classList.add('hidden');
+
+            localStorage.setItem('cookie_consent', consentStatus);
+
+            let userIdToStore = null;
+            let anonymousIdToStore = localStorage.getItem('anonymous_user_id'); // Get existing anonymous ID
+
+            // If user is logged in, use their UID
+            if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                userIdToStore = auth.currentUser.uid;
+                // If a logged-in user accepts, clear any anonymous ID as their consent is tied to their account
+                localStorage.removeItem('anonymous_user_id');
+            } else {
+                // If anonymous or not logged in, ensure an anonymous ID exists
+                if (!anonymousIdToStore) {
+                    anonymousIdToStore = 'anon_' + Date.now() + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem('anonymous_user_id', anonymousIdToStore);
+                }
+            }
+
+            const consentData = {
+                consentStatus: consentStatus,
+                timestamp: new Date(),
+                // Add more details if you have a "Customize" option
+                // consentDetails: { analytics: true, marketing: false }
+            };
+
+            try {
+                let docRef;
+                if (userIdToStore) {
+                    docRef = doc(db, `artifacts/${appId}/userConsents`, userIdToStore);
+                } else {
+                    docRef = doc(db, `artifacts/${appId}/userConsents`, anonymousIdToStore);
+                }
+                await setDoc(docRef, consentData, { merge: true }); // Use merge to update existing consent
+                console.log("Cookie consent saved to Firestore:", consentData);
+            } catch (error) {
+                console.error("Error saving cookie consent to Firestore:", error);
+            }
+
+            // Here, you would conditionally load analytics scripts, etc.
+            // For example:
+            // if (consentStatus === 'accepted') {
+            //     loadGoogleAnalytics();
+            // }
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Firebase auth
+            if (initialAuthToken) {
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } catch (error) {
+                    console.error("Error signing in with custom token:", error);
+                    await signInAnonymously(auth);
+                }
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            // Load settings
+            await loadSettings();
+            if (settings) {
+                generateDateOptions();
+                
+                // Update pricing display
+                const priceDisplay = document.getElementById('price-display');
+                if (priceDisplay && settings.appointmentPrice) {
+                    priceDisplay.textContent = `${(settings.appointmentPrice / 100).toFixed(2)}`;
+                }
+            }
+
+            // Event listeners
+            document.getElementById('preferred-date').addEventListener('change', handleDateSelection);
+            document.getElementById('booking-form').addEventListener('submit', handleFormSubmission);
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Logout functionality
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            if (logoutButtonNav) {
+                logoutButtonNav.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        mobileMenu.classList.add('hidden');
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Dropdown toggle for profile management
+            const dropdownMenu = document.getElementById('dropdown-menu-nav');
+            if (dropdownMenu) {
+                // Close dropdown if clicked outside
+                window.addEventListener('click', (event) => {
+                    const dropdownToggle = document.getElementById('user-dropdown-toggle-nav');
+                    if (dropdownToggle && !dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Add smooth animations to form elements
+            const formInputs = document.querySelectorAll('.form-input');
+            formInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('input-focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('input-focused');
+                });
+            });
+
+            // Cookie Consent Logic
+            const consentGiven = localStorage.getItem('cookie_consent');
+            const banner = document.getElementById('cookie-consent-banner');
+
+            if (!consentGiven && banner) {
+                banner.classList.remove('hidden');
+            } else if (consentGiven === 'accepted') {
+                // User previously accepted, load necessary scripts (e.g., analytics)
+                // Example: loadGoogleAnalytics();
+            }
+
+            // Event listeners for consent buttons
+            const acceptButton = document.getElementById('accept-cookies');
+            const rejectButton = document.getElementById('reject-cookies');
+
+            if (acceptButton) {
+                acceptButton.addEventListener('click', () => handleCookieConsent('accepted'));
+            }
+            if (rejectButton) {
+                rejectButton.addEventListener('click', () => handleCookieConsent('rejected'));
+            }
+        });
+    </script>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2">Home</a>
+                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2 active">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
+                
+                <div id="auth-links-nav" class="flex space-x-8">
+                    <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
+                </div>
+
+                <div id="user-profile-nav" class="relative group hidden">
+                    <button id="user-profile-button-nav" class="flex items-center space-x-2 nav-link py-2" onclick="window.location.href='embed0.html'">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e1ae654b-3485-46e4-87e7-c4fb18a5a42a.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <button id="user-dropdown-toggle-nav" class="ml-2 p-1 rounded-full hover:bg-gray-100" onclick="event.stopPropagation(); document.getElementById('dropdown-menu-nav').classList.toggle('hidden');">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
+                            <a href="embed2.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">I Miei Corsi</a>
+                            <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Esci</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
+            
+            <div id="mobile-auth-links">
+                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
+            </div>
+            <div id="mobile-user-profile" class="hidden">
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Celebration Overlay -->
+    <div id="celebration" class="celebration-container hidden">
+        <div class="bg-green-500 text-white p-8 rounded-full shadow-2xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+    </div>
+
+    <main class="py-16 hero-pattern">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <div id="message-box" class="hidden"></div>
+
+            <!-- Login Prompt for Non-Authenticated Users -->
+            <div id="login-prompt" class="section-card text-center mb-8 hidden">
+                <div class="floating-element">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto mb-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4 gradient-text">Accesso Richiesto per Prenotare</h3>
+                <p class="text-lg text-gray-600 mb-6 max-w-md mx-auto">Per garantire la privacy e la sicurezza del nostro servizio di ascolto, è necessario essere registrati per prenotare un appuntamento.</p>
+                <a href="embed0.html" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg">
+                    Accedi o Registrati Ora
+                </a>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="section-card mb-8 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 gradient-text">Sportello di Ascolto</h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">Uno spazio sicuro dove puoi essere te stesso, senza giudizio</p>
+                
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="floating-element">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/17a1dbc5-2b9d-4afe-adc9-83a1e8019707.png" alt="Ambiente accogliente e sereno per colloqui privati con poltrona comoda, luce naturale e piante per creare atmosfera rilassante e sicura" class="rounded-xl shadow-2xl mx-auto pulse-on-hover" />
+                    </div>
+                    <div class="text-left">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">A volte basta essere ascoltati. Con il cuore.</h2>
+                        <p class="text-lg text-gray-600 mb-4">Nel mio sito ho scelto di creare uno <strong>Spazio di Ascolto</strong>, un luogo sicuro e accogliente dove puoi raccontarti, sfogarti, parlare liberamente — senza giudizio.</p>
+                        <p class="text-lg text-gray-600">Non è una seduta psicologica, ma un momento semplice e profondo in cui puoi essere visto, sentito, accolto per ciò che sei.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Section -->
+            <div id="booking-section" class="hidden">
+                <!-- How It Works -->
+                <div class="section-card mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        Come Funziona
+                    </h2>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <ul class="icon-list">
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <strong>Primo incontro gratuito</strong> (su appuntamento)
+                                        <span class="pricing-badge">GRATUITO</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <div>
+                                        Possibilità di <strong>videochiamata o telefonata</strong>
+                                    </div>
+                                </li>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <div>
+                                        Eventuali incontri successivi anche <strong>in presenza</strong>
+                                        <span class="follow-up-badge">€<span id="price-display">50.00</span></span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        Ogni incontro dura circa <strong>30-45 minuti</strong>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="glass-effect p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Orari Disponibili
+                            </h3>
+                            <div class="mb-4">
+                                <p class="text-gray-700 font-semibold mb-2">📅 Giorni della Settimana:</p>
+                                <div class="schedule-grid">
+                                    <div class="schedule-item">Martedì</div>
+                                    <div class="schedule-item">Giovedì</div>
+                                    <div class="schedule-item">Venerdì</div>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <p class="text-gray-700 font-semibold mb-2">🕐 Orari:</p>
+                                <div class="schedule-grid">
+                                    <div class="schedule-item">16:00</div>
+                                    <div class="schedule-item">17:00</div>
+                                    <div class="schedule-item">18:00</div>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-lg border-l-4 border-blue-500">
+                                <p class="text-gray-800 italic font-medium">"A volte la meditazione inizia proprio da una parola detta nel modo giusto, in un momento giusto."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Form -->
+                <div class="section-card">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Prenota il Tuo Momento di Ascolto
+                        </h2>
+                        <div id="appointment-type-indicator" class="text-lg mb-4"></div>
+                    </div>
+                    
+                    <form id="booking-form" class="space-y-8">
+                        <!-- Personal Information Section -->
+                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Le Tue Informazioni
+                            </h3>
+                            <div class="grid md:grid-cols-3 gap-6">
+                                <div>
+                                    <label for="user-name" class="block text-sm font-semibold text-gray-700 mb-3">Nome Completo *</label>
+                                    <input type="text" id="user-name" name="user-name" class="form-input" required placeholder="Il tuo nome completo">
+                                </div>
+                                <div>
+                                    <label for="user-email" class="block text-sm font-semibold text-gray-700 mb-3">Email *</label>
+                                    <input type="email" id="user-email" name="user-email" class="form-input bg-gray-100" required readonly>
+                                </div>
+                                <div>
+                                    <label for="user-phone" class="block text-sm font-semibold text-gray-700 mb-3">Telefono *</label>
+                                    <input type="tel" id="user-phone" name="user-phone" class="form-input" required placeholder="+39 123 456 7890">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date and Time Selection Section -->
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Scegli Data e Orario
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="preferred-date" class="block text-sm font-semibold text-gray-700 mb-3">Data Preferita *</label>
+                                    <select id="preferred-date" name="preferred-date" class="form-input" required>
+                                        <option value="">Seleziona una data</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="preferred-time" class="block text-sm font-semibold text-gray-700 mb-3">Orario Preferito *</label>
+                                    <select id="preferred-time" name="preferred-time" class="form-input" required>
+                                        <option value="">Prima seleziona una data</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message Section -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Condividi i Tuoi Pensieri
+                            </h3>
+                            <label for="message" class="block text-sm font-semibold text-gray-700 mb-3">Messaggio (Opzionale)</label>
+                            <textarea id="message" name="message" rows="5" class="form-input" placeholder="Racconta brevemente di cosa vorresti parlare, quello che senti, o qualsiasi cosa tu voglia condividere. Questo mi aiuterà a prepararmi al meglio per il nostro incontro..."></textarea>
+                        </div>
+
+                        <!-- Submit Section -->
+                        <div class="text-center bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-xl">
+                            <div class="mb-6">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4285bb9f-a516-4e58-97b0-7830b8913188.png" alt="Icona calendario stilizzata con cuore che simboleggia appuntamenti di ascolto empatico" class="mx-auto mb-4 rounded-lg shadow-lg floating-element" />
+                                <p class="text-lg text-gray-600 mb-4">È uno spazio per chi sente il bisogno di dire qualcosa, di farsi spazio tra i pensieri, o semplicemente di essere ascoltato con gentilezza.</p>
+                            </div>
+                            
+                            <button type="submit" id="submit-button" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-12 rounded-xl transition duration-300 transform hover:scale-105 shadow-2xl text-lg">
+                                ✨ Prenota il Tuo Appuntamento
+                            </button>
+                            <p class="text-sm text-gray-600 mt-4 font-medium">🎁 Il tuo primo appuntamento è sempre gratuito</p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Trust and Safety Section -->
+                <div class="section-card">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Privacy e Sicurezza</h2>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="p-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                <h3 class="font-semibold text-gray-700 mb-2">Riservatezza Totale</h3>
+                                <p class="text-sm text-gray-600">I tuoi dati e le nostre conversazioni sono completamente riservati e protetti.</p>
+                            </div>
+                            <div class="p-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                <h3 class="font-semibold text-gray-700 mb-2">Spazio Senza Giudizio</h3>
+                                <p class="text-sm text-gray-600">Un ambiente accogliente dove puoi esprimerti liberamente, senza paura di essere giudicato.</p>
+                            </div>
+                            <div class="p-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-purple-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <h3 class="font-semibold text-gray-700 mb-2">Professionalità</h3>
+                                <p class="text-sm text-gray-600">Esperienza qualificata e approccio professionale per il tuo benessere.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p>© 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col md:flex-row items-center justify-between z-50 hidden">
+        <p class="text-sm text-center md:text-left mb-2 md:mb-0">
+            Utilizziamo i cookie per migliorare la tua esperienza di navigazione. Continuando a navigare accetti l'uso dei cookie. Per maggiori informazioni, consulta la nostra <a href="/privacy-policy.html" class="underline text-blue-400 hover:text-blue-300">Informativa sulla Privacy</a>.
+        </p>
+        <div class="flex space-x-2">
+            <button id="accept-cookies" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition duration-300">Accetta Tutto</button>
+            <button id="reject-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm transition duration-300">Rifiuta</button>
+        </div>
+    </div>
+</body>
+</html>
