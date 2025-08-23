@@ -1,29 +1,25 @@
-        </section>
-        <section id="contact" class="py-16 bg-gray-100">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Contattami</h2>
-                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">Hai domande, vuoi prenotare una sessione o semplicemente saperne di più? Non esitare a contattarmi. Sarò felice di rispondere a ogni tua richiesta.</p>
-                <div class="flex flex-col items-center space-y-6">
-                    <div class="flex items-center space-x-4 text-gray-700 text-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span>Email: <a href="mailto:caterinafiglioli1970@gmail.com" class="text-blue-600 hover:underline">caterinafiglioli1970@gmail.com</a></span>
-                    </div>
-                    <div class="flex items-center space-x-4 text-gray-700 text-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                        <span>WhatsApp o Telefono: <a href="tel:+393392005278" class="text-green-600 hover:underline">+39 3392005278</a></span>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-6 text-center">
-            <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
-        </div>
-    </footer>
-</body>
-</html>
+FileName: MultipleFiles/index.html
+FileContents: <!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caterina Figlioli - Mindfulness e Benessere</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module">
+        // Firebase imports for authentication state check
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Removed signInAnonymously from this page as it's not strictly needed for presentation.
+        // The authentication logic is more critical for embed0.html and embed2.html.
+        // Your Firebase configuration (replace with your actual values)
+        const appId = 'mindfulnesscaterina'; // Your projectId
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtQXv0J68kOBSqT9lf1OiAApPJUTg0t8E",
+          authDomain: "mindfulnesscaterina.firebaseapp.com",
+          projectId: "mindfulnesscaterina",
+          storageBucket: "mindfulnesscaterina.firebasestorage.app",
+          messagingSenderId: "453448299797",
