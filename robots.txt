@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /embed*.html
+
+# Sitemap location
+Sitemap: https://mindfulnesscaterina.it/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+
+# Crawl delay
+Crawl-delay: 1
