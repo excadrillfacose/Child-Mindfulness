@@ -182,8 +182,7 @@
                 currentSlide.innerHTML = `
                     <img src="${slides[currentSlideIndex].src}" alt="${slides[currentSlideIndex].description}" class="rounded-md object-cover mx-auto mb-4 slideshow-image">
                     <h3 class="text-base md:text-lg font-semibold text-gray-900 mb-2">${slides[currentSlideIndex].description}</h3>
-                    <!-- The <p> tag was removed as the description is now in the h3 for prominence -->
-                `;
+                    `;
                 nextSlide.innerHTML = `
                     <img src="${slides[nextIndex].src}" alt="${slides[nextIndex].description}" class="rounded-md object-cover mx-auto mb-2 slideshow-image">
                     <h3 class="text-sm font-semibold text-gray-600">${slides[nextIndex].description}</h3>
@@ -373,12 +372,10 @@
                 <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
                 <a href="embed4.html" class="nav-link py-2">Blog</a>
                 
-                <!-- Auth Links (hidden when logged in) -->
                 <div id="auth-links-nav" class="flex space-x-8">
                     <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
                 </div>
 
-                <!-- User Profile (hidden when logged out/anonymous) -->
                 <div id="user-profile-nav" class="relative group hidden">
                     <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
                         <img src="./fotoprofilo.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
@@ -405,11 +402,9 @@
             <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
             <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
             
-            <!-- Mobile Auth Links -->
             <div id="mobile-auth-links">
                 <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
             </div>
-            <!-- Mobile User Profile (logout button only for simplicity) -->
             <div id="mobile-user-profile" class="hidden">
                  <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
             </div>
@@ -422,7 +417,6 @@
                 <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Benvenuti nel Mondo della Consapevolezza</h1>
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Sono Caterina Figlioli, e vi guiderò in un percorso di benessere e crescita interiore attraverso la mindfulness e lo yoga.</p>
                 <div class="mt-8">
-                    <!-- Video di presentazione -->
                     <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden max-w-4xl mx-auto flex items-center justify-center">
                         <video controls class="w-full h-full">
                             <source src="./videopresentazione.mp4" type="video/mp4">
@@ -437,8 +431,8 @@
             <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
                 <div class="text-center md:text-left">
                     <h2 class="text-3xl font-bold text-gray-800 mb-6">Un Po' di Me</h2>
-                    <p class="text-lg text-gray-600 mb-4">testotestotestotesto</p>
-                    <p class="text-lg text-gray-600">testotestotestotesto</p>
+                    [cite_start]<p class="text-lg text-gray-600 mb-4">Mi chiamo Caterina, e accompagno le persone in un percorso di benessere e crescita interiore attraverso la meditazione, lo Yoga Nidra e la mindfulness[cite: 3]. [cite_start]Sono insegnante e praticante appassionata: ciò che trasmetto nasce prima di tutto dalla mia esperienza personale, dallo studio continuo e dal desiderio profondo di offrire uno spazio sicuro e accogliente in cui ritrovare quiete, ascolto e radicamento[cite: 5].</p>
+                    [cite_start]<p class="text-lg text-gray-600">Ho incontrato la meditazione nel 2008, in un periodo in cui non mi sentivo bene con me stessa[cite: 6]. [cite_start]Lentamente, man mano che mi addentravo nella pratica, tante tesserine del puzzle hanno iniziato a trovare il loro posto[cite: 8]. [cite_start]Dopo tre anni di pratica intensa in una scuola di meditazione, ho sentito il naturale desiderio di condividere questo cammino con gli altri[cite: 10]. [cite_start]È stato chiaro: la mia missione è accompagnare le persone verso il proprio centro[cite: 11]. [cite_start]Negli ultimi anni ho approfondito lo studio dello Yoga secondo la tradizione della Bihar School of Yoga, in India, e ho conseguito diversi diplomi[cite: 12].</p>
                 </div>
                 <div class="flex justify-center md:justify-end">
                     <img src="./fotoprofilo.png" alt="Foto di Caterina Figlioli" class="rounded-full w-64 h-64 md:w-80 md:h-80 object-cover shadow-lg">
@@ -451,8 +445,7 @@
                 <h2 class="text-3xl font-bold text-gray-800 mb-8">I Miei Diplomi e Certificazioni</h2>
                 <div class="slideshow-wrapper">
                     <div id="slideshow-container" class="slideshow-container">
-                        <!-- Slides will be dynamically inserted here by JavaScript -->
-                    </div>
+                        </div>
                     <button id="prev-slide" class="slide-button left">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -472,20 +465,20 @@
                 <h2 class="text-3xl font-bold text-gray-800 mb-8">Le Mie Esperienze di Insegnamento</h2>
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2">Corsi di Yoga per Bambini</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
+                        <h3 class="text-xl font-semibold mb-2">Meditazione</h3>
+                        <p class="text-gray-600">Spazi di quiete e ascolto, guidati con dolcezza e semplicità. Le pratiche sono accessibili a tutti, anche a chi non ha mai meditato. [cite_start]L’obiettivo non è “svuotare la mente”, ma imparare a stare nel presente con gentilezza, respiro dopo respiro[cite: 45, 46, 47].</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2">Workshop di Mindfulness per Famiglie</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
+                        <h3 class="text-xl font-semibold mb-2">Yoga Nidra</h3>
+                        <p class="text-gray-600">Una pratica profonda di rilassamento e risveglio interiore. Si pratica sdraiati, accompagnati dalla mia voce. [cite_start]Ideale per chi cerca pace mentale, sonno più profondo, e un contatto autentico con sé stesso[cite: 49, 50].</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2">Programmi di Meditazione nelle Scuole</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
+                        <h3 class="text-xl font-semibold mb-2">Mindfulness</h3>
+                        <p class="text-gray-600">Percorsi per coltivare la presenza e la consapevolezza nella vita quotidiana. [cite_start]Attraverso semplici strumenti, impariamo ad osservare pensieri, emozioni e sensazioni con uno sguardo più ampio e compassionevole[cite: 52, 53].</p>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2">Sessioni Private e di Gruppo</h3>
-                        <p class="text-gray-600">testotestotestotesto</p>
+                        <h3 class="text-xl font-semibold mb-2">Percorsi Individuali e di Gruppo</h3>
+                        [cite_start]<p class="text-gray-600">Offro sessioni personalizzate, pensate per accompagnarti con attenzione e cura, lavorando su un tema specifico o semplicemente creando uno spazio intimo e protetto[cite: 55]. [cite_start]Le pratiche di gruppo, in presenza, sono un'occasione per ritrovarci e coltivare la calma interiore in un cerchio di ascolto e sostegno reciproco[cite: 32, 57, 58].</p>
                     </div>
                 </div>
             </div>
