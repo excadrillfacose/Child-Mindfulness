@@ -49,7 +49,6 @@
         const updateHeaderAuthUI = (user) => {
             const authLinksNav = document.getElementById('auth-links-nav');
             const userProfileNav = document.getElementById('user-profile-nav');
-            const userEmailDisplayNav = document.getElementById('user-email-display-nav');
             const mobileAuthLinks = document.getElementById('mobile-auth-links');
             const mobileUserProfile = document.getElementById('mobile-user-profile');
             const logoutButtonMobile = document.getElementById('logout-button-mobile');
@@ -57,7 +56,6 @@
             if (user && !user.isAnonymous) {
                 authLinksNav.classList.add('hidden');
                 userProfileNav.classList.remove('hidden');
-                userEmailDisplayNav.textContent = user.email || 'Profilo';
                 
                 mobileAuthLinks.classList.add('hidden');
                 mobileUserProfile.classList.remove('hidden');
@@ -65,7 +63,6 @@
             } else {
                 authLinksNav.classList.remove('hidden');
                 userProfileNav.classList.add('hidden');
-                userEmailDisplayNav.textContent = '';
 
                 mobileAuthLinks.classList.remove('hidden');
                 mobileUserProfile.classList.add('hidden');
@@ -268,16 +265,12 @@
             }
 
             // Dropdown toggle for profile management
-            const dropdownButton = document.getElementById('user-email-display-nav');
             const dropdownMenu = document.getElementById('dropdown-menu-nav');
-            if (dropdownButton && dropdownMenu) {
-                dropdownButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    dropdownMenu.classList.toggle('hidden');
-                });
-
+            if (dropdownMenu) {
+                // Close dropdown if clicked outside
                 window.addEventListener('click', (event) => {
-                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    const dropdownToggle = document.getElementById('user-dropdown-toggle-nav');
+                    if (dropdownToggle && !dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
                         dropdownMenu.classList.add('hidden');
                     }
                 });
@@ -482,9 +475,16 @@
                 </div>
 
                 <div id="user-profile-nav" class="relative group hidden">
-                    <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
+                    <button id="user-profile-button-nav" class="flex items-center space-x-2 nav-link py-2" onclick="window.location.href='embed0.html'">
                         <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/104c91f9-5afc-49fe-9821-e21374642ab6.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
-                        <span class="hidden md:inline">Profilo</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <button id="user-dropdown-toggle-nav" class="ml-2 p-1 rounded-full hover:bg-gray-100" onclick="event.stopPropagation(); document.getElementById('dropdown-menu-nav').classList.toggle('hidden');">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
                     </button>
                     <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
                         <div class="py-1">
