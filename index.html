@@ -15,6 +15,7 @@ FileContents: <!DOCTYPE html>
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         // Removed signInAnonymously from this page as it's not strictly needed for presentation.
         // The authentication logic is more critical for embed0.html and embed2.html.
+
         // Your Firebase configuration (replace with your actual values)
         const appId = 'mindfulnesscaterina'; // Your projectId
         const firebaseConfig = {
@@ -23,3 +24,532 @@ FileContents: <!DOCTYPE html>
           projectId: "mindfulnesscaterina",
           storageBucket: "mindfulnesscaterina.firebasestorage.app",
           messagingSenderId: "453448299797",
+          appId: "1:453448299797:web:da3a5821c6dd42a06ee51c",
+          measurementId: "G-1EKEWEBJDH"
+        };
+        const initialAuthToken = null; // Leave as null if not using custom tokens
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Function to update header UI based on auth state
+        const updateHeaderAuthUI = (user) => {
+            const authLinksNav = document.getElementById('auth-links-nav');
+            const userProfileNav = document.getElementById('user-profile-nav');
+            const userEmailDisplayNav = document.getElementById('user-email-display-nav');
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            const mobileAuthLinks = document.getElementById('mobile-auth-links');
+            const mobileUserProfile = document.getElementById('mobile-user-profile');
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+            // Ensure elements exist before trying to access their properties
+            if (authLinksNav && userProfileNav && userEmailDisplayNav && mobileAuthLinks && mobileUserProfile) {
+                if (user && !user.isAnonymous) {
+                    // User is logged in with email/password
+                    authLinksNav.classList.add('hidden');
+                    userProfileNav.classList.remove('hidden');
+                    userEmailDisplayNav.textContent = user.email || 'Profilo';
+                    
+                    mobileAuthLinks.classList.add('hidden');
+                    mobileUserProfile.classList.remove('hidden');
+                    if (logoutButtonMobile) { // Check if logout button exists for mobile
+                        logoutButtonMobile.classList.remove('hidden');
+                    }
+                } else {
+                    // User is not logged in or is anonymous
+                    authLinksNav.classList.remove('hidden');
+                    userProfileNav.classList.add('hidden');
+                    userEmailDisplayNav.textContent = '';
+
+                    mobileAuthLinks.classList.remove('hidden');
+                    mobileUserProfile.classList.add('hidden');
+                    if (logoutButtonMobile) { // Check if logout button exists for mobile
+                        logoutButtonMobile.classList.add('hidden');
+                    }
+                }
+            }
+        };
+
+        // Handle authentication state changes
+        // This listener is set up early, but DOM manipulation is guarded by checks
+        onAuthStateChanged(auth, async (user) => {
+            // Only update UI if the DOM is ready
+            if (document.readyState === 'loading') { // Still loading
+                document.addEventListener('DOMContentLoaded', () => updateHeaderAuthUI(user));
+            } else { // Already loaded
+                updateHeaderAuthUI(user);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // The index.html page does not require an authenticated user,
+            // so we remove the signInAnonymously call to prevent errors
+            // if anonymous authentication is not enabled in Firebase.
+            // Authentication will be handled by embed0.html and embed2.html.
+
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Logout functionality for desktop dropdown
+            const logoutButtonNav = document.getElementById('logout-button-nav');
+            if (logoutButtonNav) {
+                logoutButtonNav.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        // UI will be updated by onAuthStateChanged listener
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Logout functionality for mobile menu
+            const logoutButtonMobile = document.getElementById('logout-button-mobile');
+            if (logoutButtonMobile) {
+                logoutButtonMobile.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        if (mobileMenu) { // Check if mobile menu exists
+                            mobileMenu.classList.add('hidden'); // Hide mobile menu after logout
+                        }
+                        // UI will be updated by onAuthStateChanged listener
+                    } catch (error) {
+                        console.error("Error during logout:", error);
+                    }
+                });
+            }
+
+            // Dropdown toggle for profile management
+            const dropdownButton = document.getElementById('user-email-display-nav');
+            const dropdownMenu = document.getElementById('dropdown-menu-nav');
+            if (dropdownButton && dropdownMenu) {
+                dropdownButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent closing immediately if clicked on button
+                    dropdownMenu.classList.toggle('hidden');
+                });
+
+                // Close dropdown if clicked outside
+                window.addEventListener('click', (event) => {
+                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Slideshow logic
+            const slides = [
+                { src: "./attestato4.png", title: " ", description: "Corso di formazione per insegnanti di Hatha and Ashtanga Vinyasa Yoga" },
+                { src: "./attestato5.png", title: " ", description: "Corso di formazione per insegnanti di Yin Yoga" },
+                { src: "./attestato1.png", title: " ", description: "Corso di formazione per insegnanti Yoga Nidra" },
+                { src: "./attestato2.png", title: " ", description: "Corso di formazione avanzata e specializzata per insegnanti di Hatha and Ashtanga Vinyasa Yoga" },
+                { src: "./attestato3.png", title: " ", description: "Corso di formazione per insegnanti di Yoga e Mindfulness per bambini" }
+            ];
+            let currentSlideIndex = 0;
+            const slideshowContainer = document.getElementById('slideshow-container');
+            const prevButton = document.getElementById('prev-slide');
+            const nextButton = document.getElementById('next-slide');
+
+            const renderSlides = () => {
+                if (!slideshowContainer) return; // Ensure container exists
+
+                slideshowContainer.innerHTML = ''; // Clear previous slides
+
+                const numSlides = slides.length;
+                const prevIndex = (currentSlideIndex - 1 + numSlides) % numSlides;
+                const nextIndex = (currentSlideIndex + 1) % numSlides;
+
+                // Create elements
+                const prevSlide = document.createElement('div');
+                const currentSlide = document.createElement('div');
+                const nextSlide = document.createElement('div');
+
+                // Apply common classes and initial content
+                [prevSlide, currentSlide, nextSlide].forEach(slideDiv => {
+                    slideDiv.className = 'absolute transition-all duration-500 ease-in-out transform flex flex-col items-center justify-center text-center';
+                });
+
+                // Set specific content - Using 'description' for the main text
+                prevSlide.innerHTML = `
+                    <img src="${slides[prevIndex].src}" alt="${slides[prevIndex].description}" class="rounded-md object-cover mx-auto mb-2 slideshow-image">
+                    <h3 class="text-sm font-semibold text-gray-600">${slides[prevIndex].description}</h3>
+                `;
+                currentSlide.innerHTML = `
+                    <img src="${slides[currentSlideIndex].src}" alt="${slides[currentSlideIndex].description}" class="rounded-md object-cover mx-auto mb-4 slideshow-image">
+                    <h3 class="text-base md:text-lg font-semibold text-gray-900 mb-2">${slides[currentSlideIndex].description}</h3>
+                    <!-- The <p> tag was removed as the description is now in the h3 for prominence -->
+                `;
+                nextSlide.innerHTML = `
+                    <img src="${slides[nextIndex].src}" alt="${slides[nextIndex].description}" class="rounded-md object-cover mx-auto mb-2 slideshow-image">
+                    <h3 class="text-sm font-semibold text-gray-600">${slides[nextIndex].description}</h3>
+                `;
+
+                // Append to container
+                slideshowContainer.appendChild(prevSlide);
+                slideshowContainer.appendChild(currentSlide);
+                slideshowContainer.appendChild(nextSlide);
+
+                // Set sizes and positions
+                const isMobile = window.innerWidth < 768;
+
+                // Image dimensions based on A4 horizontal ratio (approx 1.41:1)
+                const largeImgHeight = isMobile ? 180 : 250;
+                const largeImgWidth = Math.round(largeImgHeight * 1.41);
+                const smallImgHeight = isMobile ? 120 : 180;
+                const smallImgWidth = Math.round(smallImgHeight * 1.41);
+
+                // Apply image dimensions
+                currentSlide.querySelector('.slideshow-image').style.width = `${largeImgWidth}px`;
+                currentSlide.querySelector('.slideshow-image').style.height = `${largeImgHeight}px`;
+                prevSlide.querySelector('.slideshow-image').style.width = `${smallImgWidth}px`;
+                prevSlide.querySelector('.slideshow-image').style.height = `${smallImgHeight}px`;
+                nextSlide.querySelector('.slideshow-image').style.width = `${smallImgWidth}px`;
+                nextSlide.querySelector('.slideshow-image').style.height = `${smallImgHeight}px`;
+
+                // Positioning using translateX relative to center
+                // Current Slide (Center)
+                currentSlide.classList.add('scale-100', 'opacity-100', 'z-20');
+                currentSlide.style.left = '50%';
+                currentSlide.style.transform = 'translateX(-50%)';
+
+                // Previous Slide (Left)
+                prevSlide.classList.add('scale-75', 'opacity-50', 'z-10');
+                prevSlide.style.left = '50%';
+                // Calculate offset to place it to the left of the current slide, with a small gap
+                const prevOffset = -(largeImgWidth / 2 + smallImgWidth / 2 + (isMobile ? 10 : 20)); // Adjust gap
+                prevSlide.style.transform = `translateX(calc(-50% + ${prevOffset}px))`;
+
+                // Next Slide (Right)
+                nextSlide.classList.add('scale-75', 'opacity-50', 'z-10');
+                nextSlide.style.left = '50%';
+                // Calculate offset to place it to the right of the current slide, with a small gap
+                const nextOffset = (largeImgWidth / 2 + smallImgWidth / 2 + (isMobile ? 10 : 20)); // Adjust gap
+                nextSlide.style.transform = `translateX(calc(-50% + ${nextOffset}px))`;
+
+                // Add hover effect to the current image
+                const currentImage = currentSlide.querySelector('.slideshow-image');
+                if (currentImage) { // Ensure image exists before adding listener
+                    currentImage.addEventListener('mouseenter', () => {
+                        currentImage.classList.add('hover-scale');
+                    });
+                    currentImage.addEventListener('mouseleave', () => {
+                        currentImage.classList.remove('hover-scale');
+                    });
+                }
+            };
+
+            if (prevButton) { // Ensure button exists
+                prevButton.addEventListener('click', () => {
+                    currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+                    renderSlides();
+                });
+            }
+
+            if (nextButton) { // Ensure button exists
+                nextButton.addEventListener('click', () => {
+                    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                    renderSlides();
+                });
+            }
+
+            renderSlides(); // Initial render
+            window.addEventListener('resize', renderSlides); // Re-render on resize
+        });
+    </script>
+    <style>
+        /* Light Mode Defaults */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4; /* Soft off-white */
+            color: #333333; /* Darker, more readable text */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+            color: #6B7280; /* Slightly softer nav link color */
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #5A67D8; /* Primary accent blue */
+            border-bottom-color: #5A67D8;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .social-icon {
+            transition: transform 0.2s;
+        }
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Slideshow specific styles */
+        .slideshow-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width for the slideshow */
+            height: 580px; /* Adjusted height to accommodate larger text and ensure vertical centering */
+            margin: 0 auto;
+            overflow: hidden; /* Hide overflowing parts of images */
+        }
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Use flexbox for centering */
+            align-items: center; /* Vertically center content */
+            justify-content: center; /* Horizontally center content */
+        }
+        .slideshow-container > div {
+            position: absolute;
+            transition: all 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            /* Removed top and translateY here, handled by parent flexbox */
+        }
+        .slideshow-image {
+            transition: transform 0.3s ease-in-out;
+        }
+        .slideshow-image.hover-scale {
+            transform: scale(1.3);
+        }
+        .slide-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 30; /* Above slides */
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        .slide-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .slide-button.left {
+            left: 10px;
+        }
+        .slide-button.right {
+            right: 10px;
+        }
+        /* Responsive adjustments for slideshow */
+        @media (max-width: 768px) {
+            .slideshow-wrapper {
+                height: 480px; /* Smaller height on mobile, adjusted for zoom */
+            }
+            .slideshow-container > div {
+                padding: 0 10px; /* Add some padding on mobile */
+            }
+            .slide-button {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2 active">Home</a>
+                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2">Blog</a>
+                <a href="#contact" class="nav-link py-2">Contatti</a>
+                
+                <!-- Auth Links (hidden when logged in) -->
+                <div id="auth-links-nav" class="flex space-x-8">
+                    <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
+                </div>
+
+                <!-- User Profile (hidden when logged out/anonymous) -->
+                <div id="user-profile-nav" class="relative group hidden">
+                    <button id="user-email-display-nav" class="flex items-center space-x-2 nav-link py-2">
+                        <img src="./fotoprofilo.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
+                        <span class="hidden md:inline">Profilo</span>
+                    </button>
+                    <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
+                            <a href="embed2.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">I Miei Corsi</a>
+                            <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Esci</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
+            <a href="#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
+            
+            <!-- Mobile Auth Links -->
+            <div id="mobile-auth-links">
+                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
+            </div>
+            <!-- Mobile User Profile (logout button only for simplicity) -->
+            <div id="mobile-user-profile" class="hidden">
+                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 bg-white text-center">
+            <div class="container mx-auto px-6">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Benvenuti nel Mondo della Consapevolezza e del Benessere</h1>
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Sono Caterina Figlioli, e vi guiderò in un percorso di crescita interiore e armonia, attraverso la pratica della mindfulness e dello yoga, per riscoprire la vostra serenità.</p>
+                <div class="mt-8">
+                    <!-- Video di presentazione -->
+                    <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden max-w-4xl mx-auto flex items-center justify-center shadow-lg">
+                        <video controls class="w-full h-full">
+                            <source src="./videopresentazione.mp4" type="video/mp4">
+                            Il tuo browser non supporta il tag video.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-16">
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center md:text-left">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Un Po' di Me e della Mia Missione</h2>
+                    <p class="text-lg text-gray-600 mb-4">La mia passione è accompagnare le persone, di ogni età, verso una maggiore consapevolezza e un benessere profondo. Credo fermamente nel potere trasformativo della mindfulness e dello yoga come strumenti per coltivare la pace interiore e affrontare le sfide quotidiane con maggiore equilibrio.</p>
+                    <p class="text-lg text-gray-600">Attraverso percorsi personalizzati e di gruppo, mi impegno a creare uno spazio sicuro e accogliente dove ognuno possa esplorare il proprio potenziale, imparare a gestire lo stress e riscoprire la gioia di vivere nel momento presente.</p>
+                </div>
+                <div class="flex justify-center md:justify-end">
+                    <img src="./fotoprofilo.png" alt="Foto di Caterina Figlioli" class="rounded-full w-64 h-64 md:w-80 md:h-80 object-cover shadow-lg border-4 border-white">
+                </div>
+            </div>
+        </section>
+
+        <section id="diplomas" class="py-16 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">I Miei Diplomi e Certificazioni</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-12">La mia formazione è un percorso continuo, dedicato ad approfondire le discipline che amo e a offrire il meglio a chi si affida a me. Ecco alcune delle mie principali certificazioni:</p>
+                <div class="slideshow-wrapper">
+                    <div id="slideshow-container" class="slideshow-container">
+                        <!-- Slides will be dynamically inserted here by JavaScript -->
+                    </div>
+                    <button id="prev-slide" class="slide-button left">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button id="next-slide" class="slide-button right">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="py-16">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Le Mie Esperienze di Insegnamento</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-12">Ho avuto il privilegio di guidare numerosi individui e gruppi in percorsi di mindfulness e yoga, adattando le pratiche alle diverse esigenze e contesti:</p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Corsi di Yoga per Bambini</h3>
+                        <p class="text-gray-600">Sessioni ludiche e creative per introdurre i più piccoli alla consapevolezza del corpo e delle emozioni, promuovendo calma e concentrazione attraverso il gioco.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Workshop di Mindfulness per Famiglie</h3>
+                        <p class="text-gray-600">Incontri dedicati a genitori e figli per esplorare insieme la mindfulness, rafforzando i legami familiari e creando un ambiente domestico più sereno e consapevole.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Programmi di Meditazione nelle Scuole</h3>
+                        <p class="text-gray-600">Collaborazioni con istituti scolastici per integrare pratiche di mindfulness nel curriculum, aiutando studenti e insegnanti a gestire lo stress e migliorare l'attenzione.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Sessioni Private e di Gruppo</h3>
+                        <p class="text-gray-600">Percorsi personalizzati o in piccoli gruppi per adulti e adolescenti, focalizzati su obiettivi specifici come la riduzione dello stress, il miglioramento del sonno o lo sviluppo dell'intelligenza emotiva.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="social" class="py-16 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Connettiamoci!</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">Seguimi sui miei canali social per rimanere aggiornato sulle ultime novità, ispirazioni quotidiane e approfondimenti sul mondo della mindfulness e del benessere.</p>
+                <div class="flex justify-center space-x-6">
+                    <a href="https://www.instagram.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-pink-500">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.792.058.971.045 1.77.202 2.41.458.64.257 1.173.607 1.618 1.053.445.445.796.978 1.053 1.618.256.64.413 1.439.458 2.41.045 1.008.058 1.358.058 3.792s-.013 2.784-.058 3.792c-.045.971-.202 1.77-.458 2.41-.257.64-.607 1.173-1.618 1.053-.445.445-.978.796-1.618 1.053-.64-.256-1.439-.413-2.41-.458C9.537 2.013 9.887 2 12.315 2zm0 2.16c-2.727 0-3.064.01-4.122.055-.91.041-1.49.174-1.873.32-.383.145-.668.347-.91.59-.242.242-.445.527-.59.91-.146.383-.279.963-.32 1.873-.046 1.058-.055 1.395-.055 4.122s.01 3.064.055 4.122.174 1.49.32 1.873.347.668.59.91.527.445.91.59.963.279 1.873.32 1.058.046 4.122.055 3.064-.01 4.122-.055.963-.174 1.873-.32.668-.347.91-.59.445-.527.59-.91.279-.963.32-1.873.046-1.058.055-4.122s-.01-3.064-.055-4.122-.174-1.49-.32-1.873-.347-.668-.59-.91-.527-.445-.91-.59-.963-.279-1.873-.32-1.058-.046-4.122-.055zM12.315 6.84a5.475 5.475 0 100 10.95 5.475 5.475 0 000-10.95zM12.315 8.91a3.405 3.405 0 110 6.81 3.405 3.405 0 010-6.81zm5.337-3.24a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="https://www.facebook.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-blue-600">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.505 1.492-3.89 3.776-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33V22H12c5.523 0 10-4.477 10-10z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-blue-700">
+                        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V8h3v11zM6.5 6.73c-.96 0-1.75-.79-1.75-1.75S5.54 3.23 6.5 3.23s1.75.79 1.75 1.75S7.46 6.73 6.5 6.73zM19 19h-3v-4.7c0-1.12-.02-2.56-1.56-2.56-1.57 0-1.81-1.22-1.81-2.49V8h-3v11h3v-4.5c0-.85.06-1.55.23-2.1.17-.55.45-.96.86-1.28.41-.32.93-.49 1.54-.49.61 0 1.13.17 1.54.49.41.32.69.73.86 1.28.17.55.23 1.25.23 2.1V19z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-16 bg-gray-100">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8">Contattami</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">Hai domande, vuoi prenotare una sessione o semplicemente saperne di più? Non esitare a contattarmi. Sarò felice di rispondere a ogni tua richiesta.</p>
+                <div class="flex flex-col items-center space-y-6">
+                    <div class="flex items-center space-x-4 text-gray-700 text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>Email: <a href="mailto:caterinafiglioli1970@gmail.com" class="text-blue-600 hover:underline">caterinafiglioli1970@gmail.com</a></span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-gray-700 text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <span>WhatsApp o Telefono: <a href="tel:+393392005278" class="text-green-600 hover:underline">+39 3392005278</a></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+</body>
+</html>
