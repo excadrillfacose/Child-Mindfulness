@@ -66,26 +66,25 @@
 
         // Function to update header UI based on auth state
         const updateHeaderAuthUI = (user) => {
-            const authLinksNav = document.getElementById('auth-links-nav');
-            const userProfileNav = document.getElementById('user-profile-nav');
-            const mobileAuthLinks = document.getElementById('mobile-auth-links');
-            const mobileUserProfile = document.getElementById('mobile-user-profile');
-            const logoutButtonMobile = document.getElementById('logout-button-mobile');
-
-            if (user && !user.isAnonymous) {
-                authLinksNav.classList.add('hidden');
-                userProfileNav.classList.remove('hidden');
-                
-                mobileAuthLinks.classList.add('hidden');
-                mobileUserProfile.classList.remove('hidden');
-                logoutButtonMobile.classList.remove('hidden');
-            } else {
-                authLinksNav.classList.remove('hidden');
-                userProfileNav.classList.add('hidden');
-
-                mobileAuthLinks.classList.remove('hidden');
-                mobileUserProfile.classList.add('hidden');
-                logoutButtonMobile.classList.add('hidden');
+            const userAvatar = document.getElementById('user-avatar');
+            
+            if (userAvatar) {
+                if (user && !user.isAnonymous && user.email) {
+                    // User is logged in with email/password - show first character of email
+                    const firstChar = user.email.charAt(0).toUpperCase();
+                    userAvatar.textContent = firstChar;
+                    userAvatar.classList.remove('anonymous');
+                    userAvatar.title = `Logged in as ${user.email}`;
+                } else {
+                    // User is not logged in or is anonymous - show hamburger icon
+                    userAvatar.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    `;
+                    userAvatar.classList.add('anonymous');
+                    userAvatar.title = 'Menu';
+                }
             }
         };
 
@@ -513,48 +512,19 @@
             document.getElementById('preferred-date').addEventListener('change', handleDateSelection);
             document.getElementById('booking-form').addEventListener('submit', handleFormSubmission);
 
-            // Mobile menu toggle
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            // Mobile menu toggle - using the avatar as the toggle button
+            const userAvatar = document.getElementById('user-avatar');
             const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-
-            // Logout functionality
-            const logoutButtonNav = document.getElementById('logout-button-nav');
-            if (logoutButtonNav) {
-                logoutButtonNav.addEventListener('click', async () => {
-                    try {
-                        await signOut(auth);
-                    } catch (error) {
-                        console.error("Error during logout:", error);
+            
+            if (userAvatar && mobileMenu) {
+                // Add click event to toggle mobile menu on mobile devices
+                userAvatar.addEventListener('click', (e) => {
+                    // Check if we're on mobile (screen width < 768px)
+                    if (window.innerWidth < 768) {
+                        e.preventDefault();
+                        mobileMenu.classList.toggle('hidden');
                     }
-                });
-            }
-
-            const logoutButtonMobile = document.getElementById('logout-button-mobile');
-            if (logoutButtonMobile) {
-                logoutButtonMobile.addEventListener('click', async () => {
-                    try {
-                        await signOut(auth);
-                        mobileMenu.classList.add('hidden');
-                    } catch (error) {
-                        console.error("Error during logout:", error);
-                    }
-                });
-            }
-
-            // Dropdown toggle for profile management
-            const dropdownMenu = document.getElementById('dropdown-menu-nav');
-            if (dropdownMenu) {
-                // Close dropdown if clicked outside
-                window.addEventListener('click', (event) => {
-                    const dropdownToggle = document.getElementById('user-dropdown-toggle-nav');
-                    if (dropdownToggle && !dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                        dropdownMenu.classList.add('hidden');
-                    }
+                    // On desktop, it will navigate to embed0.html as set in onclick attribute
                 });
             }
 
@@ -606,37 +576,14 @@
                 <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
                 <a href="embed4.html" class="nav-link py-2">Blog</a>
                 <a href="index.html#contact" class="nav-link py-2">Contatti</a>
-                
-                <div id="auth-links-nav" class="flex space-x-8">
-                    <a href="embed0.html" class="nav-link py-2">Accedi / Registrati</a>
-                </div>
-
-                <div id="user-profile-nav" class="relative group hidden">
-                    <button id="user-profile-button-nav" class="flex items-center space-x-2 nav-link py-2" onclick="window.location.href='embed0.html'">
-                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e1ae654b-3485-46e4-87e7-c4fb18a5a42a.png" alt="Profilo Utente" class="rounded-full w-8 h-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                    <button id="user-dropdown-toggle-nav" class="ml-2 p-1 rounded-full hover:bg-gray-100" onclick="event.stopPropagation(); document.getElementById('dropdown-menu-nav').classList.toggle('hidden');">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div id="dropdown-menu-nav" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
-                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                            <a href="embed0.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Impostazioni Account</a>
-                            <a href="embed2.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">I Miei Corsi</a>
-                            <button id="logout-button-nav" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Esci</button>
-                        </div>
-                    </div>
+            </div>
+            <div class="hamburger-menu">
+                <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </div>
             </div>
-             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4" />
-                </svg>
-            </button>
         </nav>
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
             <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
@@ -645,13 +592,7 @@
             <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
             <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
             <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
-            
-            <div id="mobile-auth-links">
-                <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Accedi / Registrati</a>
-            </div>
-            <div id="mobile-user-profile" class="hidden">
-                 <button id="logout-button-mobile" class="block w-full text-left py-2 text-gray-700 hover:text-[#5A67D8]">Esci</button>
-            </div>
+            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Account</a>
         </div>
     </header>
 
