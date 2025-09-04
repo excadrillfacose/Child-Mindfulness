@@ -40,7 +40,19 @@ class AnalyticsManager {
 
     checkCookieConsent() {
         const consent = localStorage.getItem('cookie_consent');
-        this.consentGiven = consent === 'accepted';
+        
+        // Handle both old format (string) and new format (JSON)
+        if (consent) {
+            try {
+                const consentState = JSON.parse(consent);
+                this.consentGiven = consentState.analytics === true;
+            } catch (e) {
+                // Fallback to old format
+                this.consentGiven = consent === 'accepted';
+            }
+        } else {
+            this.consentGiven = false;
+        }
         
         if (this.config.enableDebug) {
             console.log('Analytics Manager: Cookie consent status:', this.consentGiven);
@@ -50,7 +62,13 @@ class AnalyticsManager {
     setupConsentListeners() {
         // Listen for consent changes
         document.addEventListener('cookieConsentChanged', (event) => {
-            this.consentGiven = event.detail.accepted;
+            // Check specifically for analytics consent
+            if (event.detail.consentState) {
+                this.consentGiven = event.detail.consentState.analytics === true;
+            } else {
+                // Fallback to old format
+                this.consentGiven = event.detail.accepted;
+            }
             
             if (this.consentGiven) {
                 this.initializeTracking();
@@ -65,8 +83,19 @@ class AnalyticsManager {
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
             if (key === 'cookie_consent') {
+                let consentState;
+                try {
+                    consentState = JSON.parse(value);
+                } catch (e) {
+                    // Fallback to old format
+                    consentState = { analytics: value === 'accepted' };
+                }
+                
                 const event = new CustomEvent('cookieConsentChanged', {
-                    detail: { accepted: value === 'accepted' }
+                    detail: { 
+                        accepted: Object.values(consentState).some(val => val === true),
+                        consentState: consentState
+                    }
                 });
                 document.dispatchEvent(event);
             }
@@ -94,16 +123,25 @@ class AnalyticsManager {
     loadGoogleAnalytics() {
         if (window.gtag) return; // Already loaded
 
+        // Initialize gtag with consent mode
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        
+        // Set default consent state
+        gtag('consent', 'default', {
+            'analytics_storage': this.consentGiven ? 'granted' : 'denied',
+            'ad_storage': 'denied', // We don't use ads by default
+            'functionality_storage': 'granted', // Essential functionality
+            'personalization_storage': 'denied', // Personalization requires consent
+            'security_storage': 'granted' // Security is essential
+        });
+
         // Load gtag script
         const script = document.createElement('script');
         script.async = true;
         script.src = `https://www.googletagmanager.com/gtag/js?id=${this.config.googleAnalyticsId}`;
         document.head.appendChild(script);
-
-        // Initialize gtag
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        window.gtag = gtag;
         
         gtag('js', new Date());
         gtag('config', this.config.googleAnalyticsId, {
@@ -111,19 +149,25 @@ class AnalyticsManager {
             page_location: window.location.href,
             custom_map: {
                 'custom_parameter_1': 'mindfulness_page_type'
-            }
+            },
+            // Anonymize IP for privacy
+            anonymize_ip: true,
+            // Respect consent
+            send_page_view: this.consentGiven
         });
 
-        // Enhanced measurement
-        gtag('config', this.config.googleAnalyticsId, {
-            enhanced_measurements: {
-                scrolls: true,
-                outbound_clicks: true,
-                site_search: true,
-                video_engagement: true,
-                file_downloads: true
-            }
-        });
+        // Enhanced measurement only if consent given
+        if (this.consentGiven) {
+            gtag('config', this.config.googleAnalyticsId, {
+                enhanced_measurements: {
+                    scrolls: true,
+                    outbound_clicks: true,
+                    site_search: true,
+                    video_engagement: true,
+                    file_downloads: true
+                }
+            });
+        }
     }
 
     loadGoogleTagManager() {
@@ -416,16 +460,45 @@ class AnalyticsManager {
     }
 
     disableTracking() {
-        // Disable Google Analytics
+        // Update consent for Google Analytics
         if (window.gtag) {
             gtag('consent', 'update', {
                 'analytics_storage': 'denied',
-                'ad_storage': 'denied'
+                'ad_storage': 'denied',
+                'personalization_storage': 'denied'
             });
         }
 
         // Clear queued events
         this.trackingQueue = [];
+        
+        if (this.config.enableDebug) {
+            console.log('Analytics Manager: Tracking disabled');
+        }
+    }
+
+    // Method to update consent when user changes preferences
+    updateConsent(consentState) {
+        this.consentGiven = consentState.analytics === true;
+        
+        if (window.gtag) {
+            gtag('consent', 'update', {
+                'analytics_storage': this.consentGiven ? 'granted' : 'denied',
+                'personalization_storage': consentState.preferences ? 'granted' : 'denied',
+                'ad_storage': consentState.marketing ? 'granted' : 'denied'
+            });
+        }
+        
+        if (this.consentGiven) {
+            this.initializeTracking();
+            this.processQueuedEvents();
+        } else {
+            this.disableTracking();
+        }
+        
+        if (this.config.enableDebug) {
+            console.log('Analytics Manager: Consent updated', consentState);
+        }
     }
 
     // Public methods for custom tracking
