@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostazioni Cookie - Caterina Figlioli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cookie-consent-manager.js"></script>
+</head>
+<body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800 dark:text-gray-100">
+                <a href="index.html">Caterina Figlioli</a>
+            </div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="embed1.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+            </div>
+            <div class="hamburger-menu">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+                <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 max-w-4xl">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors duration-300">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Impostazioni Cookie</h1>
+            
+            <div class="mb-8">
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Gestisci le tue preferenze sui cookie. Puoi abilitare o disabilitare diverse categorie di cookie 
+                    in base alle tue preferenze. I cookie essenziali sono sempre attivi per garantire il corretto 
+                    funzionamento del sito.
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Le modifiche saranno applicate immediatamente e salvate per le visite future.
+                </p>
+            </div>
+
+            <!-- Current Consent Status -->
+            <div class="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Stato Attuale del Consenso</h3>
+                <div id="consent-status" class="text-sm text-blue-700 dark:text-blue-300">
+                    Caricamento...
+                </div>
+            </div>
+
+            <!-- Cookie Categories -->
+            <div class="space-y-6">
+                <!-- Essential Cookies -->
+                <div class="cookie-category required border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                    <div class="category-header flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="category-title text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                                Cookie Essenziali
+                                <span class="text-sm font-normal text-green-600 dark:text-green-400 ml-2">(Sempre Attivi)</span>
+                            </h3>
+                            <p class="category-description text-gray-600 dark:text-gray-300">
+                                Questi cookie sono necessari per il funzionamento del sito web e non possono essere disattivati. 
+                                Includono cookie per la gestione delle sessioni, le preferenze del tema e la sicurezza.
+                            </p>
+                        </div>
+                        <label class="switch ml-4">
+                            <input type="checkbox" id="cookie-category-essential" checked disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <strong>Cookie utilizzati:</strong> session_id, theme_preference, csrf_token, user_auth
+                    </div>
+                </div>
+
+                <!-- Analytics Cookies -->
+                <div class="cookie-category border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                    <div class="category-header flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="category-title text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Cookie Analitici</h3>
+                            <p class="category-description text-gray-600 dark:text-gray-300">
+                                Questi cookie ci permettono di contare le visite e le fonti di traffico per misurare e 
+                                migliorare le prestazioni del nostro sito. Ci aiutano a sapere quali pagine sono più 
+                                popolari e come i visitatori si muovono nel sito.
+                            </p>
+                        </div>
+                        <label class="switch ml-4">
+                            <input type="checkbox" id="cookie-category-analytics">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <strong>Cookie utilizzati:</strong> _ga, _ga_*, _gid (Google Analytics)
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <strong>Durata:</strong> Da 1 giorno a 2 anni
+                    </div>
+                </div>
+
+                <!-- Marketing Cookies -->
+                <div class="cookie-category border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                    <div class="category-header flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="category-title text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Cookie di Marketing</h3>
+                            <p class="category-description text-gray-600 dark:text-gray-300">
+                                Questi cookie possono essere impostati attraverso il nostro sito dai nostri partner 
+                                pubblicitari per creare un profilo dei tuoi interessi e mostrarti annunci pertinenti 
+                                su altri siti.
+                            </p>
+                        </div>
+                        <label class="switch ml-4">
+                            <input type="checkbox" id="cookie-category-marketing">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <strong>Cookie utilizzati:</strong> _fbp, _fbc (Facebook Pixel), ads_*, marketing_*
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <strong>Durata:</strong> Da 30 giorni a 1 anno
+                    </div>
+                </div>
+
+                <!-- Preferences Cookies -->
+                <div class="cookie-category border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                    <div class="category-header flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="category-title text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">Cookie di Preferenze</h3>
+                            <p class="category-description text-gray-600 dark:text-gray-300">
+                                Questi cookie permettono al sito web di ricordare le scelte che fai (come il tuo nome 
+                                utente, lingua o regione) e fornire funzionalità migliorate e più personali.
+                            </p>
+                        </div>
+                        <label class="switch ml-4">
+                            <input type="checkbox" id="cookie-category-preferences">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                        <strong>Cookie utilizzati:</strong> language_pref, region_pref, ui_preferences
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <strong>Durata:</strong> Da 30 giorni a 1 anno
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="save-preferences" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-300 font-medium">
+                        Salva Preferenze
+                    </button>
+                    <button id="accept-all-cookies" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition duration-300 font-medium">
+                        Accetta Tutti
+                    </button>
+                    <button id="reject-all-cookies" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition duration-300 font-medium">
+                        Rifiuta Tutti
+                    </button>
+                    <a href="privacy-policy.html" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition duration-300 text-center font-medium">
+                        Privacy Policy
+                    </a>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">Informazioni Aggiuntive</h3>
+                <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                    <p><strong>Come eliminare i cookie:</strong> Puoi eliminare i cookie già memorizzati attraverso le impostazioni del tuo browser.</p>
+                    <p><strong>Modifiche future:</strong> Puoi modificare le tue preferenze in qualsiasi momento tornando su questa pagina.</p>
+                    <p><strong>Impatto delle modifiche:</strong> Disabilitare alcuni cookie potrebbe influire sulla funzionalità del sito.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white dark:text-gray-100 py-8 transition-colors duration-300">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Cookie Settings Page Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    
+                    if (isDark) {
+                        htmlElement.classList.remove('dark');
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        htmlElement.classList.add('dark');
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
+
+            // Load current consent state
+            loadCurrentConsent();
+
+            // Set up event listeners
+            document.getElementById('save-preferences').addEventListener('click', savePreferences);
+            document.getElementById('accept-all-cookies').addEventListener('click', acceptAllCookies);
+            document.getElementById('reject-all-cookies').addEventListener('click', rejectAllCookies);
+        });
+
+        function loadCurrentConsent() {
+            const consent = localStorage.getItem('cookie_consent');
+            let consentState = {
+                essential: true,
+                analytics: false,
+                marketing: false,
+                preferences: false
+            };
+
+            if (consent) {
+                try {
+                    consentState = JSON.parse(consent);
+                } catch (e) {
+                    console.error('Error parsing consent:', e);
+                }
+            }
+
+            // Update checkboxes
+            document.getElementById('cookie-category-analytics').checked = consentState.analytics;
+            document.getElementById('cookie-category-marketing').checked = consentState.marketing;
+            document.getElementById('cookie-category-preferences').checked = consentState.preferences;
+
+            // Update status display
+            updateConsentStatus(consentState);
+        }
+
+        function updateConsentStatus(consentState) {
+            const statusElement = document.getElementById('consent-status');
+            const activeCategories = Object.entries(consentState)
+                .filter(([key, value]) => value)
+                .map(([key]) => {
+                    switch(key) {
+                        case 'essential': return 'Essenziali';
+                        case 'analytics': return 'Analitici';
+                        case 'marketing': return 'Marketing';
+                        case 'preferences': return 'Preferenze';
+                        default: return key;
+                    }
+                });
+
+            statusElement.innerHTML = `
+                <strong>Categorie attive:</strong> ${activeCategories.join(', ')}<br>
+                <strong>Ultimo aggiornamento:</strong> ${new Date().toLocaleString('it-IT')}
+            `;
+        }
+
+        function savePreferences() {
+            const consentState = {
+                essential: true, // Always true
+                analytics: document.getElementById('cookie-category-analytics').checked,
+                marketing: document.getElementById('cookie-category-marketing').checked,
+                preferences: document.getElementById('cookie-category-preferences').checked
+            };
+
+            localStorage.setItem('cookie_consent', JSON.stringify(consentState));
+            
+            // Dispatch event for other components
+            const event = new CustomEvent('cookieConsentChanged', {
+                detail: { 
+                    accepted: Object.values(consentState).some(val => val === true),
+                    consentState: consentState 
+                }
+            });
+            document.dispatchEvent(event);
+
+            updateConsentStatus(consentState);
+            showNotification('Preferenze salvate con successo!', 'success');
+        }
+
+        function acceptAllCookies() {
+            const consentState = {
+                essential: true,
+                analytics: true,
+                marketing: true,
+                preferences: true
+            };
+
+            // Update checkboxes
+            document.getElementById('cookie-category-analytics').checked = true;
+            document.getElementById('cookie-category-marketing').checked = true;
+            document.getElementById('cookie-category-preferences').checked = true;
+
+            localStorage.setItem('cookie_consent', JSON.stringify(consentState));
+            
+            // Dispatch event
+            const event = new CustomEvent('cookieConsentChanged', {
+                detail: { 
+                    accepted: true,
+                    consentState: consentState 
+                }
+            });
+            document.dispatchEvent(event);
+
+            updateConsentStatus(consentState);
+            showNotification('Tutti i cookie sono stati accettati!', 'success');
+        }
+
+        function rejectAllCookies() {
+            const consentState = {
+                essential: true, // Always true
+                analytics: false,
+                marketing: false,
+                preferences: false
+            };
+
+            // Update checkboxes
+            document.getElementById('cookie-category-analytics').checked = false;
+            document.getElementById('cookie-category-marketing').checked = false;
+            document.getElementById('cookie-category-preferences').checked = false;
+
+            localStorage.setItem('cookie_consent', JSON.stringify(consentState));
+            
+            // Dispatch event
+            const event = new CustomEvent('cookieConsentChanged', {
+                detail: { 
+                    accepted: true, // Essential cookies are still accepted
+                    consentState: consentState 
+                }
+            });
+            document.dispatchEvent(event);
+
+            updateConsentStatus(consentState);
+            showNotification('Solo i cookie essenziali sono attivi.', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            // Set colors based on type
+            switch(type) {
+                case 'success':
+                    notification.className += ' bg-green-500 text-white';
+                    break;
+                case 'error':
+                    notification.className += ' bg-red-500 text-white';
+                    break;
+                case 'info':
+                default:
+                    notification.className += ' bg-blue-500 text-white';
+                    break;
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

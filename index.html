@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
+    <script src="js/seo-master.js" defer></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caterina Figlioli - Mindfulness e Benessere</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/slideshow.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cookie-consent-manager.js"></script>
     <script type="module">
         // Firebase imports for authentication state check
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -68,15 +81,10 @@
             }
         });
 
-        // Function to handle cookie consent
-        const handleCookieConsent = async (consentStatus) => {
-            const banner = document.getElementById('cookie-consent-banner');
-            if (banner) banner.classList.add('hidden');
-
-            localStorage.setItem('cookie_consent', consentStatus);
-
+        // Enhanced cookie consent handling with Firestore integration
+        const handleCookieConsentFirestore = async (consentState) => {
             let userIdToStore = null;
-            let anonymousIdToStore = localStorage.getItem('anonymous_user_id'); // Get existing anonymous ID
+            let anonymousIdToStore = localStorage.getItem('anonymous_user_id');
 
             // If user is logged in, use their UID
             if (auth.currentUser && !auth.currentUser.isAnonymous) {
@@ -92,10 +100,10 @@
             }
 
             const consentData = {
-                consentStatus: consentStatus,
+                consentState: consentState,
                 timestamp: new Date(),
-                // Add more details if you have a "Customize" option
-                // consentDetails: { analytics: true, marketing: false }
+                userAgent: navigator.userAgent,
+                url: window.location.href
             };
 
             try {
@@ -105,22 +113,64 @@
                 } else {
                     docRef = doc(db, `artifacts/${appId}/userConsents`, anonymousIdToStore);
                 }
-                await setDoc(docRef, consentData, { merge: true }); // Use merge to update existing consent
+                await setDoc(docRef, consentData, { merge: true });
                 console.log("Cookie consent saved to Firestore:", consentData);
             } catch (error) {
                 console.error("Error saving cookie consent to Firestore:", error);
             }
-
-            // Here, you would conditionally load analytics scripts, etc.
-            // For example:
-            // if (consentStatus === 'accepted') {
-            //     loadGoogleAnalytics();
-            // }
         };
+
+        // Listen for cookie consent changes to save to Firestore
+        document.addEventListener('cookieConsentChanged', (event) => {
+            if (event.detail.consentState) {
+                handleCookieConsentFirestore(event.detail.consentState);
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Ensure an anonymous user is signed in for consistent auth state
             await signInAnonymously(auth);
+
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    
+                    if (isDark) {
+                        // Switch to light mode
+                        htmlElement.classList.remove('dark');
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        // Switch to dark mode
+                        htmlElement.classList.add('dark');
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
 
             // Mobile menu toggle - using the avatar as the toggle button
             const userAvatar = document.getElementById('user-avatar');
@@ -138,27 +188,8 @@
                 });
             }
 
-            // Cookie Consent Logic
-            const consentGiven = localStorage.getItem('cookie_consent');
-            const banner = document.getElementById('cookie-consent-banner');
-
-            if (!consentGiven && banner) {
-                banner.classList.remove('hidden');
-            } else if (consentGiven === 'accepted') {
-                // User previously accepted, load necessary scripts (e.g., analytics)
-                // Example: loadGoogleAnalytics();
-            }
-
-            // Event listeners for consent buttons
-            const acceptButton = document.getElementById('accept-cookies');
-            const rejectButton = document.getElementById('reject-cookies');
-
-            if (acceptButton) {
-                acceptButton.addEventListener('click', () => handleCookieConsent('accepted'));
-            }
-            if (rejectButton) {
-                rejectButton.addEventListener('click', () => handleCookieConsent('rejected'));
-            }
+            // Cookie consent is now handled by the CookieConsentManager
+            // No additional setup needed here as it's automatically initialized
 
             // Enhanced Slideshow logic
             const slides = [
@@ -178,6 +209,7 @@
             // Create slide indicators
             const createIndicators = () => {
                 if (!indicatorsContainer) return;
+                indicatorsContainer.innerHTML = '';
                 slides.forEach((_, index) => {
                     const indicator = document.createElement('button');
                     indicator.className = `slide-indicator w-3 h-3 rounded-full transition-all duration-300 ${index === 0 ? 'bg-blue-500 scale-110' : 'bg-gray-300 hover:bg-gray-400'}`;
@@ -200,74 +232,75 @@
             };
 
             const renderSlides = () => {
-                if (!slideshowContainer || isTransitioning) return;
+                console.log('Rendering slide:', currentSlideIndex, slides[currentSlideIndex]);
+                
+                if (!slideshowContainer) {
+                    console.error('Slideshow container not found');
+                    return;
+                }
+
+                if (isTransitioning) {
+                    console.log('Already transitioning, skipping render');
+                    return;
+                }
 
                 isTransitioning = true;
                 slideshowContainer.innerHTML = '';
 
-                const slideWrapper = document.createElement('div');
-                slideWrapper.className = 'relative w-full h-full flex items-center justify-center';
-                
-                // Create main slide (center)
-                const mainSlide = document.createElement('div');
-                mainSlide.className = 'slide-item main-slide opacity-0 transform scale-95';
+                // Create a simple, direct approach
+                const slideContent = document.createElement('div');
+                slideContent.className = 'w-full h-full flex flex-col items-center justify-center text-center';
+                slideContent.style.opacity = '1';
+                slideContent.style.visibility = 'visible';
                 
                 const mainImage = document.createElement('img');
                 mainImage.src = slides[currentSlideIndex].src;
                 mainImage.alt = slides[currentSlideIndex].description;
-                mainImage.className = 'slideshow-image main-image shadow-2xl';
-                mainImage.loading = 'lazy';
+                mainImage.className = 'slideshow-image main-image shadow-2xl block';
+                mainImage.style.display = 'block';
+                mainImage.style.opacity = '1';
+                mainImage.style.visibility = 'visible';
+                
+                // Add comprehensive error handling
+                mainImage.onerror = function() {
+                    console.error('Failed to load image:', this.src);
+                    // Create a visible placeholder
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'slideshow-image main-image shadow-2xl bg-gray-200 flex items-center justify-center';
+                    placeholder.style.width = '320px';
+                    placeholder.style.height = '240px';
+                    placeholder.innerHTML = '<span class="text-gray-500">Immagine non disponibile</span>';
+                    this.parentNode.replaceChild(placeholder, this);
+                };
+                
+                mainImage.onload = function() {
+                    console.log('Image loaded successfully:', this.src);
+                    this.style.opacity = '1';
+                    this.style.visibility = 'visible';
+                };
                 
                 const mainTitle = document.createElement('h3');
                 mainTitle.className = 'slide-title mt-6 text-center text-lg md:text-xl font-semibold text-gray-800 max-w-md mx-auto leading-tight';
                 mainTitle.textContent = slides[currentSlideIndex].description;
+                mainTitle.style.opacity = '1';
+                mainTitle.style.visibility = 'visible';
 
-                mainSlide.appendChild(mainImage);
-                mainSlide.appendChild(mainTitle);
+                slideContent.appendChild(mainImage);
+                slideContent.appendChild(mainTitle);
+                slideshowContainer.appendChild(slideContent);
 
-                // Create side slides for visual context
-                const createSideSlide = (index, position) => {
-                    const sideSlide = document.createElement('div');
-                    sideSlide.className = `slide-item side-slide ${position}-slide absolute opacity-0`;
-                    
-                    const sideImage = document.createElement('img');
-                    sideImage.src = slides[index].src;
-                    sideImage.alt = slides[index].description;
-                    sideImage.className = 'slideshow-image side-image';
-                    sideImage.loading = 'lazy';
-                    
-                    sideSlide.appendChild(sideImage);
-                    return sideSlide;
-                };
+                // Force visibility and remove any hiding styles
+                slideshowContainer.style.opacity = '1';
+                slideshowContainer.style.visibility = 'visible';
+                slideshowContainer.style.display = 'block';
 
-                // Previous slide
-                const prevIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
-                const prevSlide = createSideSlide(prevIndex, 'prev');
-                
-                // Next slide  
-                const nextIndex = (currentSlideIndex + 1) % slides.length;
-                const nextSlide = createSideSlide(nextIndex, 'next');
+                console.log('Slide rendered, container content:', slideshowContainer.innerHTML);
 
-                slideWrapper.appendChild(prevSlide);
-                slideWrapper.appendChild(mainSlide);
-                slideWrapper.appendChild(nextSlide);
-                slideshowContainer.appendChild(slideWrapper);
-
-                // Animate in
-                requestAnimationFrame(() => {
-                    mainSlide.classList.remove('opacity-0', 'scale-95');
-                    mainSlide.classList.add('opacity-100', 'scale-100');
-                    
-                    prevSlide.classList.remove('opacity-0');
-                    prevSlide.classList.add('opacity-60');
-                    
-                    nextSlide.classList.remove('opacity-0');
-                    nextSlide.classList.add('opacity-60');
-                    
-                    setTimeout(() => {
-                        isTransitioning = false;
-                    }, 300);
-                });
+                // Reset transition flag
+                setTimeout(() => {
+                    isTransitioning = false;
+                    console.log('Transition complete');
+                }, 100);
 
                 updateIndicators();
             };
@@ -344,10 +377,30 @@
             slideshowContainer?.addEventListener('mouseenter', stopAutoPlay);
             slideshowContainer?.addEventListener('mouseleave', startAutoPlay);
 
-            // Initialize
-            createIndicators();
-            renderSlides();
-            startAutoPlay();
+            // Initialize with multiple attempts to ensure it works
+            const initializeSlider = () => {
+                console.log('Initializing slider...');
+                const container = document.getElementById('slideshow-container');
+                const indicators = document.getElementById('slide-indicators');
+                
+                if (!container || !indicators) {
+                    console.log('Slider elements not found, retrying in 100ms...');
+                    setTimeout(initializeSlider, 100);
+                    return;
+                }
+                
+                console.log('Slider elements found, creating slider...');
+                createIndicators();
+                renderSlides();
+                startAutoPlay();
+                console.log('Slider initialized successfully');
+            };
+
+            // Try to initialize immediately
+            initializeSlider();
+
+            // Also try after a delay as backup
+            setTimeout(initializeSlider, 500);
 
             // Handle resize
             window.addEventListener('resize', () => {
@@ -356,22 +409,70 @@
                 }
             });
         });
+
+        // Additional fallback initialization outside DOMContentLoaded
+        window.addEventListener('load', () => {
+            console.log('Window loaded, checking slider...');
+            const container = document.getElementById('slideshow-container');
+            if (container && !container.innerHTML.trim()) {
+                console.log('Slider empty on window load, reinitializing...');
+                setTimeout(() => {
+                    const slides = [
+                        { src: "./attestato4.png", title: " ", description: "Corso di formazione per insegnanti di Hatha and Ashtanga Vinyasa Yoga" },
+                        { src: "./attestato5.png", title: " ", description: "Corso di formazione per insegnanti di Yin Yoga" },
+                        { src: "./attestato1.png", title: " ", description: "Corso di formazione per insegnanti Yoga Nidra" },
+                        { src: "./attestato2.png", title: " ", description: "Corso di formazione avanzata e specializzata per insegnanti di Hatha and Ashtanga Vinyasa Yoga" },
+                        { src: "./attestato3.png", title: " ", description: "Corso di formazione per insegnanti di Yoga e Mindfulness per bambini" }
+                    ];
+                    
+                    // Simple fallback render
+                    const slideContent = document.createElement('div');
+                    slideContent.className = 'w-full h-full flex flex-col items-center justify-center text-center';
+                    
+                    const img = document.createElement('img');
+                    img.src = slides[0].src;
+                    img.alt = slides[0].description;
+                    img.className = 'slideshow-image main-image shadow-2xl';
+                    img.style.width = '320px';
+                    img.style.height = '240px';
+                    img.style.display = 'block';
+                    
+                    const title = document.createElement('h3');
+                    title.className = 'slide-title mt-6 text-center text-lg md:text-xl font-semibold text-gray-800 max-w-md mx-auto leading-tight';
+                    title.textContent = slides[0].description;
+                    
+                    slideContent.appendChild(img);
+                    slideContent.appendChild(title);
+                    container.appendChild(slideContent);
+                    
+                    console.log('Fallback slider content added');
+                }, 100);
+            }
+        });
     </script>
 </head>
-<body class="antialiased">
+<body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="text-xl font-bold text-gray-800 dark:text-gray-100">Caterina Figlioli</div>
             <div class="hidden md:flex space-x-8 items-center">
-                <a href="index.html" class="nav-link py-2 active">Home</a>
-                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
-                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
-                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
-                <a href="embed4.html" class="nav-link py-2">Blog</a>
-                <a href="#contact" class="nav-link py-2">Contatti</a>
+                <a href="index.html" class="nav-link py-2 active text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="embed1.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+                <a href="embed3.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+                <a href="#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
             </div>
             <div class="hamburger-menu">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
                 <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -379,22 +480,22 @@
                 </div>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
-            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
-            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
-            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
-            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
-            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
-            <a href="#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
-            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Account</a>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
+            <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+            <a href="#contact" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+            <a href="embed0.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Account</a>
         </div>
     </header>
 
     <main>
-        <section id="hero" class="py-20 bg-white text-center">
+        <section id="hero" class="py-20 bg-white dark:bg-gray-800 text-center transition-colors duration-300">
             <div class="container mx-auto px-6">
-                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4 leading-tight">Benvenuti nel Mondo della Consapevolezza e del Benessere</h1>
-                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Sono Caterina Figlioli, e vi guiderò in un percorso di crescita interiore e armonia, attraverso la pratica della mindfulness e dello yoga, per riscoprire la vostra serenità.</p>
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 dark:text-gray-100 mb-4 leading-tight">Benvenuti nel Mondo della Consapevolezza e del Benessere</h1>
+                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">Sono Caterina Figlioli, e vi guiderò in un percorso di crescita interiore e armonia, attraverso la pratica della mindfulness e dello yoga, per riscoprire la vostra serenità.</p>
                 <div class="mt-8">
                     <!-- Video di presentazione -->
                     <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden max-w-4xl mx-auto flex items-center justify-center shadow-lg">
@@ -407,12 +508,12 @@
             </div>
         </section>
 
-        <section id="about" class="py-16">
+        <section id="about" class="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
             <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
                 <div class="text-center md:text-left">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Un Po' di Me e della Mia Missione</h2>
-                    <p class="text-lg text-gray-600 mb-4">La mia passione è accompagnare le persone, di ogni età, verso una maggiore consapevolezza e un benessere profondo. Credo fermamente nel potere trasformativo della mindfulness e dello yoga come strumenti per coltivare la pace interiore e affrontare le sfide quotidiane con maggiore equilibrio.</p>
-                    <p class="text-lg text-gray-600">Attraverso percorsi personalizzati e di gruppo, mi impegno a creare uno spazio sicuro e accogliente dove ognuno possa esplorare il proprio potenziale, imparare a gestire lo stress e riscoprire la gioia di vivere nel momento presente.</p>
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Un Po' di Me e della Mia Missione</h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">La mia passione è accompagnare le persone, di ogni età, verso una maggiore consapevolezza e un benessere profondo. Credo fermamente nel potere trasformativo della mindfulness e dello yoga come strumenti per coltivare la pace interiore e affrontare le sfide quotidiane con maggiore equilibrio.</p>
+                    <p class="text-lg text-gray-600 dark:text-gray-300">Attraverso percorsi personalizzati e di gruppo, mi impegno a creare uno spazio sicuro e accogliente dove ognuno possa esplorare il proprio potenziale, imparare a gestire lo stress e riscoprire la gioia di vivere nel momento presente.</p>
                 </div>
                 <div class="flex justify-center md:justify-end">
                     <img src="./fotoprofilo.png" alt="Foto di Caterina Figlioli" class="rounded-full w-64 h-64 md:w-80 md:h-80 object-cover shadow-lg border-4 border-white">
@@ -420,13 +521,17 @@
             </div>
         </section>
 
-        <section id="diplomas" class="py-16 bg-white">
+        <section id="diplomas" class="py-16 bg-white dark:bg-gray-800 transition-colors duration-300">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">I Miei Diplomi e Certificazioni</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-12">La mia formazione è un percorso continuo, dedicato ad approfondire le discipline che amo e a offrire il meglio a chi si affida a me. Ecco alcune delle mie principali certificazioni:</p>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">I Miei Diplomi e Certificazioni</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-12">La mia formazione è un percorso continuo, dedicato ad approfondire le discipline che amo e a offrire il meglio a chi si affida a me. Ecco alcune delle mie principali certificazioni:</p>
                 <div class="slideshow-wrapper">
                     <div id="slideshow-container" class="slideshow-container">
-                        <!-- Slides will be dynamically inserted here by JavaScript -->
+                        <!-- Default slide content as fallback -->
+                        <div class="w-full h-full flex flex-col items-center justify-center text-center">
+                            <img src="./attestato4.png" alt="Corso di formazione per insegnanti di Hatha and Ashtanga Vinyasa Yoga" class="slideshow-image main-image shadow-2xl" style="width: 320px; height: 240px; display: block;">
+                            <h3 class="slide-title mt-6 text-center text-lg md:text-xl font-semibold text-gray-800 max-w-md mx-auto leading-tight">Corso di formazione per insegnanti di Hatha and Ashtanga Vinyasa Yoga</h3>
+                        </div>
                     </div>
                     <button id="prev-slide" class="slide-button left">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -438,48 +543,54 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
-                    <div id="slide-indicators" class="slide-indicators"></div>
+                    <div id="slide-indicators" class="slide-indicators">
+                        <button class="slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-blue-500 scale-110"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-gray-300 hover:bg-gray-400"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-gray-300 hover:bg-gray-400"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-gray-300 hover:bg-gray-400"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-gray-300 hover:bg-gray-400"></button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="experience" class="py-16">
+        <section id="experience" class="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Le Mie Esperienze di Insegnamento</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-12">Ho avuto il privilegio di guidare numerosi individui e gruppi in percorsi di mindfulness e yoga, adattando le pratiche alle diverse esigenze e contesti:</p>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Le Mie Esperienze di Insegnamento</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-12">Ho avuto il privilegio di guidare numerosi individui e gruppi in percorsi di mindfulness e yoga, adattando le pratiche alle diverse esigenze e contesti:</p>
                 <div class="grid md:grid-cols-2 gap-8">
-                    <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Corsi di Yoga per Bambini</h3>
+                    <div class="card p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Corsi di Yoga per Bambini</h3>
                     </div>
-                    <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Workshop di Mindfulness per Famiglie</h3>
+                    <div class="card p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Workshop di Mindfulness per Famiglie</h3>
                     </div>
-                    <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Programmi di Meditazione nelle Scuole</h3>
+                    <div class="card p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Programmi di Meditazione nelle Scuole</h3>
                     </div>
-                    <div class="card p-6">
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Sessioni Private e di Gruppo</h3>
+                    <div class="card p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Sessioni Private e di Gruppo</h3>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="social" class="py-16 bg-white">
+        <section id="social" class="py-16 bg-white dark:bg-gray-800 transition-colors duration-300">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Connettiamoci!</h2>
-                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">Seguimi sui miei canali social per rimanere aggiornato sulle ultime novità, ispirazioni quotidiane e approfondimenti sul mondo della mindfulness e del benessere.</p>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Connettiamoci!</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">Seguimi sui miei canali social per rimanere aggiornato sulle ultime novità, ispirazioni quotidiane e approfondimenti sul mondo della mindfulness e del benessere.</p>
                 <div class="flex justify-center space-x-6">
-                    <a href="https://www.instagram.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-pink-500">
+                    <a href="https://www.instagram.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400">
                         <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.792.058.971.045 1.77.202 2.41.458.64.257 1.173.607 1.618 1.053.445.445.796.978 1.053 1.618.256.64.413 1.439.458 2.41.045 1.008.058 1.358.058 3.792s-.013 2.784-.058 3.792c-.045.971-.202 1.77-.458 2.41-.257.64-.607 1.173-1.618 1.053-.445.445-.978.796-1.618 1.053-.64-.256-1.439-.413-2.41-.458C9.537 2.013 9.887 2 12.315 2zm0 2.16c-2.727 0-3.064.01-4.122.055-.91.041-1.49.174-1.873.32-.383.145-.668.347-.91.59-.242.242-.445.527-.59.91-.146.383-.279.963-.32 1.873-.046 1.058-.055 1.395-.055 4.122s.01 3.064.055 4.122.174 1.49.32 1.873.347.668.59.91.527.445.91.59.963.279 1.873.32 1.058.046 4.122.055 3.064-.01 4.122-.055.963-.174 1.873-.32.668-.347.91-.59.445-.527.59-.91.279-.963.32-1.873.046-1.058.055-4.122s-.01-3.064-.055-4.122-.174-1.49-.32-1.873-.347-.668-.59-.91-.527-.445-.91-.59-.963-.279-1.873-.32-1.058-.046-4.122-.055zM12.315 6.84a5.475 5.475 0 100 10.95 5.475 5.475 0 000-10.95zM12.315 8.91a3.405 3.405 0 110 6.81 3.405 3.405 0 010-6.81zm5.337-3.24a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z" clip-rule="evenodd" />
                         </svg>
                     </a>
-                    <a href="https://www.facebook.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-blue-600">
+                    <a href="https://www.facebook.com/tuo_profilo" target="_blank" class="social-icon text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
                         <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.505 1.492-3.89 3.776-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33V22H12c5.523 0 10-4.477 10-10z" clip-rule="evenodd" />
                         </svg>
                     </a>
-                    <a href="https://www.linkedin.com/in/tuo_profilo" target="_blank" class="social-icon text-gray-600 hover:text-blue-700">
+                    <a href="https://www.linkedin.com/in/tuo_profilo" target="_blank" class="social-icon text-gray-600 dark:text-gray-400 hover:text-blue-700 dark:hover:text-blue-400">
                         <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M0 0h24v24H0z" fill="none"/>
                             <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V8h3v11zM6.5 6.73c-.96 0-1.75-.79-1.75-1.75S5.54 3.23 6.5 3.23s1.75.79 1.75 1.75S7.46 6.73 6.5 6.73zM19 19h-3v-4.7c0-1.12-.02-2.56-1.56-2.56-1.57 0-1.81-1.22-1.81-2.49V8h-3v11h3v-4.5c0-.85.06-1.55.23-2.1.17-.55.45-.96.86-1.28.41-.32.93-.49 1.54-.49.61 0 1.13.17 1.54.49.41.32.69.73.86 1.28.17.55.23 1.25.23 2.1V19z"/>
@@ -489,43 +600,139 @@
             </div>
         </section>
 
-        <section id="contact" class="py-16 bg-gray-100">
+        <section id="contact" class="py-16 bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8">Contattami</h2>
-                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">Hai domande, vuoi prenotare una sessione o semplicemente saperne di più? Non esitare a contattarmi. Sarò felice di rispondere a ogni tua richiesta.</p>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Contattami</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">Hai domande, vuoi prenotare una sessione o semplicemente saperne di più? Non esitare a contattarmi. Sarò felice di rispondere a ogni tua richiesta.</p>
                 <div class="flex flex-col items-center space-y-6">
-                    <div class="flex items-center space-x-4 text-gray-700 text-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="flex items-center space-x-4 text-gray-700 dark:text-gray-300 text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <span>Email: <a href="mailto:caterinafiglioli1970@gmail.com" class="text-blue-600 hover:underline">caterinafiglioli1970@gmail.com</a></span>
+                        <span>Email: <a href="mailto:caterinafiglioli1970@gmail.com" class="text-blue-600 dark:text-blue-400 hover:underline">caterinafiglioli1970@gmail.com</a></span>
                     </div>
-                    <div class="flex items-center space-x-4 text-gray-700 text-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="flex items-center space-x-4 text-gray-700 dark:text-gray-300 text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
-                        <span>WhatsApp o Telefono: <a href="tel:+393392005278" class="text-green-600 hover:underline">+39 3392005278</a></span>
+                        <span>WhatsApp o Telefono: <a href="tel:+393392005278" class="text-green-600 dark:text-green-400 hover:underline">+39 3392005278</a></span>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-gray-800 text-white py-8">
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white dark:text-gray-100 py-8 transition-colors duration-300">
         <div class="container mx-auto px-6 text-center">
             <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+            <div class="mt-4 flex justify-center space-x-6 text-sm">
+                <a href="privacy-policy.html" class="text-gray-300 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="cookie-settings.html" class="text-gray-300 hover:text-white transition duration-300">Impostazioni Cookie</a>
+                <button onclick="showCookieSettings()" class="text-gray-300 hover:text-white transition duration-300 bg-transparent border-none cursor-pointer">Gestisci Cookie</button>
+            </div>
         </div>
     </footer>
 
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-consent-banner" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col md:flex-row items-center justify-between z-50 hidden">
-        <p class="text-sm text-center md:text-left mb-2 md:mb-0">
-            Utilizziamo i cookie per migliorare la tua esperienza di navigazione. Continuando a navigare accetti l'uso dei cookie. Per maggiori informazioni, consulta la nostra <a href="/privacy-policy.html" class="underline text-blue-400 hover:text-blue-300">Informativa sulla Privacy</a>.
-        </p>
-        <div class="flex space-x-2">
-            <button id="accept-cookies" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition duration-300">Accetta Tutto</button>
-            <button id="reject-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm transition duration-300">Rifiuta</button>
-        </div>
-    </div>
+    <!-- Enhanced Cookie Consent System -->
+    <!-- The cookie consent banner and modal are now handled by cookie-consent-manager.js -->
+    <!-- Add a link to cookie settings in the footer for easy access -->
+
+    <!-- Standalone Slider Script -->
+    <script>
+        // Standalone slider functionality that works independently
+        (function() {
+            const slides = [
+                { src: "./attestato4.png", description: "Corso di formazione per insegnanti di Hatha and Ashtanga Vinyasa Yoga" },
+                { src: "./attestato5.png", description: "Corso di formazione per insegnanti di Yin Yoga" },
+                { src: "./attestato1.png", description: "Corso di formazione per insegnanti Yoga Nidra" },
+                { src: "./attestato2.png", description: "Corso di formazione avanzata e specializzata per insegnanti di Hatha and Ashtanga Vinyasa Yoga" },
+                { src: "./attestato3.png", description: "Corso di formazione per insegnanti di Yoga e Mindfulness per bambini" }
+            ];
+            
+            let currentIndex = 0;
+            let autoPlayInterval;
+            
+            function initSlider() {
+                const container = document.getElementById('slideshow-container');
+                const prevBtn = document.getElementById('prev-slide');
+                const nextBtn = document.getElementById('next-slide');
+                const indicators = document.querySelectorAll('.slide-indicator');
+                
+                if (!container) return;
+                
+                function updateSlide() {
+                    const slide = slides[currentIndex];
+                    container.innerHTML = `
+                        <div class="w-full h-full flex flex-col items-center justify-center text-center">
+                            <img src="${slide.src}" alt="${slide.description}" class="slideshow-image main-image shadow-2xl" style="width: 320px; height: 240px; display: block;">
+                            <h3 class="slide-title mt-6 text-center text-lg md:text-xl font-semibold text-gray-800 max-w-md mx-auto leading-tight">${slide.description}</h3>
+                        </div>
+                    `;
+                    
+                    // Update indicators
+                    indicators.forEach((indicator, index) => {
+                        if (index === currentIndex) {
+                            indicator.className = 'slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-blue-500 scale-110';
+                        } else {
+                            indicator.className = 'slide-indicator w-3 h-3 rounded-full transition-all duration-300 bg-gray-300 hover:bg-gray-400';
+                        }
+                    });
+                }
+                
+                function nextSlide() {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    updateSlide();
+                }
+                
+                function prevSlide() {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    updateSlide();
+                }
+                
+                function goToSlide(index) {
+                    currentIndex = index;
+                    updateSlide();
+                }
+                
+                // Event listeners
+                if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+                if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+                
+                indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => goToSlide(index));
+                });
+                
+                // Auto-play
+                function startAutoPlay() {
+                    autoPlayInterval = setInterval(nextSlide, 5000);
+                }
+                
+                function stopAutoPlay() {
+                    if (autoPlayInterval) {
+                        clearInterval(autoPlayInterval);
+                        autoPlayInterval = null;
+                    }
+                }
+                
+                // Hover to pause
+                container.addEventListener('mouseenter', stopAutoPlay);
+                container.addEventListener('mouseleave', startAutoPlay);
+                
+                // Initialize
+                updateSlide();
+                startAutoPlay();
+            }
+            
+            // Initialize when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initSlider);
+            } else {
+                initSlider();
+            }
+            
+            // Backup initialization
+            setTimeout(initSlider, 1000);
+        })();
+    </script>
 </body>
 </html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informativa sulla Privacy - Caterina Figlioli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cookie-consent-manager.js"></script>
+</head>
+<body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800 dark:text-gray-100">
+                <a href="index.html">Caterina Figlioli</a>
+            </div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="index.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="embed1.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Mindfulness</a>
+                <a href="embed3.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+            </div>
+            <div class="hamburger-menu">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+                <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 max-w-4xl">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 transition-colors duration-300">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Informativa sulla Privacy</h1>
+            
+            <div class="prose prose-lg dark:prose-invert max-w-none">
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    <strong>Ultimo aggiornamento:</strong> {{ new Date().toLocaleDateString('it-IT') }}
+                </p>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">1. Introduzione</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Caterina Figlioli ("noi", "nostro" o "ci") rispetta la tua privacy e si impegna a proteggere i tuoi dati personali. 
+                        Questa informativa sulla privacy ti informa su come trattiamo i tuoi dati personali quando visiti il nostro sito web 
+                        e ti informa sui tuoi diritti sulla privacy e su come la legge ti protegge.
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">2. Dati che Raccogliamo</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Possiamo raccogliere, utilizzare, archiviare e trasferire diversi tipi di dati personali su di te:</p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                        <li><strong>Dati di identità:</strong> nome, cognome, indirizzo email</li>
+                        <li><strong>Dati di contatto:</strong> indirizzo email, numero di telefono</li>
+                        <li><strong>Dati tecnici:</strong> indirizzo IP, tipo di browser, fuso orario, sistema operativo</li>
+                        <li><strong>Dati di utilizzo:</strong> informazioni su come utilizzi il nostro sito web</li>
+                        <li><strong>Dati di marketing:</strong> le tue preferenze nel ricevere comunicazioni da noi</li>
+                    </ul>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">3. Come Utilizziamo i Tuoi Dati</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Utilizziamo i tuoi dati personali per:</p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                        <li>Fornire e mantenere il nostro servizio</li>
+                        <li>Gestire le prenotazioni e gli appuntamenti</li>
+                        <li>Comunicare con te riguardo ai nostri servizi</li>
+                        <li>Migliorare il nostro sito web e i nostri servizi</li>
+                        <li>Rispettare gli obblighi legali</li>
+                    </ul>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">4. Cookie e Tecnologie Simili</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Il nostro sito web utilizza cookie e tecnologie simili per migliorare la tua esperienza di navigazione. 
+                        I cookie sono piccoli file di testo che vengono memorizzati sul tuo dispositivo quando visiti il nostro sito.
+                    </p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">Tipi di Cookie che Utilizziamo:</h3>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">Cookie Essenziali</h4>
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">
+                            Questi cookie sono necessari per il funzionamento del sito web e non possono essere disattivati nei nostri sistemi.
+                        </p>
+                        <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                            <li>Gestione delle sessioni utente</li>
+                            <li>Preferenze del tema (modalità scura/chiara)</li>
+                            <li>Stato di accesso</li>
+                            <li>Consenso ai cookie</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">Cookie Analitici</h4>
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">
+                            Questi cookie ci permettono di contare le visite e le fonti di traffico per misurare e migliorare le prestazioni del nostro sito.
+                        </p>
+                        <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                            <li>Google Analytics (G-1EKEWEBJDH)</li>
+                            <li>Metriche di performance del sito</li>
+                            <li>Analisi del comportamento degli utenti</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">Cookie di Preferenze</h4>
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">
+                            Questi cookie permettono al sito web di ricordare le scelte che fai per fornirti funzionalità migliorate e più personali.
+                        </p>
+                        <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                            <li>Impostazioni della lingua</li>
+                            <li>Preferenze di visualizzazione</li>
+                            <li>Impostazioni personalizzate</li>
+                        </ul>
+                    </div>
+
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Puoi gestire le tue preferenze sui cookie in qualsiasi momento visitando la nostra 
+                        <a href="cookie-settings.html" class="text-blue-600 dark:text-blue-400 hover:underline">pagina delle impostazioni cookie</a>.
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">5. Base Legale per il Trattamento</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Trattiamo i tuoi dati personali sulla base di:</p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                        <li><strong>Consenso:</strong> quando hai dato il consenso esplicito</li>
+                        <li><strong>Esecuzione del contratto:</strong> per fornire i servizi richiesti</li>
+                        <li><strong>Interesse legittimo:</strong> per migliorare i nostri servizi</li>
+                        <li><strong>Obbligo legale:</strong> per rispettare la normativa applicabile</li>
+                    </ul>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">6. Condivisione dei Dati</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Non vendiamo, scambiamo o trasferiamo in altro modo i tuoi dati personali a terze parti senza il tuo consenso, 
+                        eccetto nei seguenti casi:
+                    </p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                        <li>Fornitori di servizi fidati che ci assistono nell'operare il nostro sito web</li>
+                        <li>Quando richiesto dalla legge</li>
+                        <li>Per proteggere i nostri diritti o la sicurezza</li>
+                    </ul>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">7. Conservazione dei Dati</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Conserviamo i tuoi dati personali solo per il tempo necessario agli scopi per cui li abbiamo raccolti, 
+                        inclusi eventuali requisiti legali, contabili o di reporting.
+                    </p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                        <li><strong>Dati di account:</strong> fino alla cancellazione dell'account</li>
+                        <li><strong>Dati di prenotazione:</strong> 5 anni per scopi legali</li>
+                        <li><strong>Cookie analitici:</strong> 26 mesi (Google Analytics)</li>
+                        <li><strong>Consenso cookie:</strong> 12 mesi</li>
+                    </ul>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">8. I Tuoi Diritti</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Sotto il GDPR, hai i seguenti diritti:</p>
+                    <ul class="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-4">
+                        <li><strong>Diritto di accesso:</strong> richiedere copie dei tuoi dati personali</li>
+                        <li><strong>Diritto di rettifica:</strong> richiedere la correzione di dati inesatti</li>
+                        <li><strong>Diritto di cancellazione:</strong> richiedere la cancellazione dei tuoi dati</li>
+                        <li><strong>Diritto di limitazione:</strong> richiedere la limitazione del trattamento</li>
+                        <li><strong>Diritto di portabilità:</strong> richiedere il trasferimento dei dati</li>
+                        <li><strong>Diritto di opposizione:</strong> opporti al trattamento dei tuoi dati</li>
+                        <li><strong>Diritto di revoca del consenso:</strong> ritirare il consenso in qualsiasi momento</li>
+                    </ul>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Per esercitare questi diritti, contattaci all'indirizzo: 
+                        <a href="mailto:caterinafiglioli1970@gmail.com" class="text-blue-600 dark:text-blue-400 hover:underline">caterinafiglioli1970@gmail.com</a>
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">9. Sicurezza dei Dati</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Implementiamo misure di sicurezza appropriate per proteggere i tuoi dati personali contro accesso non autorizzato, 
+                        alterazione, divulgazione o distruzione. Tuttavia, nessun metodo di trasmissione su Internet è completamente sicuro.
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">10. Modifiche a Questa Informativa</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Potremmo aggiornare questa informativa sulla privacy di tanto in tanto. Ti notificheremo eventuali modifiche 
+                        pubblicando la nuova informativa su questa pagina e aggiornando la data di "Ultimo aggiornamento".
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">11. Contatti</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Se hai domande su questa informativa sulla privacy o sui tuoi dati personali, contattaci:
+                    </p>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">
+                            <strong>Email:</strong> <a href="mailto:caterinafiglioli1970@gmail.com" class="text-blue-600 dark:text-blue-400 hover:underline">caterinafiglioli1970@gmail.com</a>
+                        </p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">
+                            <strong>Telefono:</strong> <a href="tel:+393392005278" class="text-blue-600 dark:text-blue-400 hover:underline">+39 3392005278</a>
+                        </p>
+                    </div>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">12. Autorità di Controllo</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        Hai il diritto di presentare un reclamo all'autorità di controllo competente se ritieni che il trattamento 
+                        dei tuoi dati personali violi il GDPR. In Italia, l'autorità competente è il Garante per la protezione dei dati personali.
+                    </p>
+                </section>
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="cookie-settings.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-300 text-center">
+                        Gestisci Cookie
+                    </a>
+                    <a href="index.html" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition duration-300 text-center">
+                        Torna alla Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white dark:text-gray-100 py-8 transition-colors duration-300">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize theme toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    
+                    if (isDark) {
+                        htmlElement.classList.remove('dark');
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        htmlElement.classList.add('dark');
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
+    <script src="js/seo-master.js" defer></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Gratuiti di Mindfulness</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cookie-consent-manager.js"></script>
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -153,6 +166,8 @@
                 console.log("Signed in anonymously.");
             }
 
+            // Theme toggle functionality is handled by theme-toggle.js
+
             // Mobile menu toggle - using the avatar as the toggle button
             const userAvatar = document.getElementById('user-avatar');
             const mobileMenu = document.getElementById('mobile-menu');
@@ -193,20 +208,28 @@
         });
     </script>
 </head>
-<body class="antialiased">
+<body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="text-xl font-bold text-gray-800 dark:text-gray-100">Caterina Figlioli</div>
             <div class="hidden md:flex space-x-8 items-center">
-                <a href="index.html" class="nav-link py-2">Home</a>
-                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
-                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
-                <a href="embed2.html" class="nav-link py-2 active">Video Gratuiti</a>
-                <a href="embed4.html" class="nav-link py-2">Blog</a>
-                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
+                <a href="index.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="embed1.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+                <a href="embed3.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2 active text-blue-600 dark:text-blue-400">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
             </div>
             <div class="hamburger-menu">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
                 <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -214,14 +237,14 @@
                 </div>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
-            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
-            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
-            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
-            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
-            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
-            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
-            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Account</a>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
+            <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+            <a href="embed0.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Account</a>
         </div>
     </header>
 
@@ -229,76 +252,68 @@
         <div class="container mx-auto px-6">
             <div id="page-message-box" class="hidden"></div>
 
-            <div id="login-prompt" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md text-center hidden">
+            <div id="login-prompt" class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-300 p-4 rounded-md text-center hidden transition-colors duration-300">
                 <p class="font-bold text-lg mb-2">Contenuto Riservato!</p>
-                <p>Per accedere ai video gratuiti, è necessario <a href="embed0.html" class="font-bold underline text-blue-600 hover:text-blue-800">Accedere o Registrarsi</a>.</p>
+                <p>Per accedere ai video gratuiti, è necessario <a href="embed0.html" class="font-bold underline text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">Accedere o Registrarsi</a>.</p>
             </div>
 
             <div id="video-gallery" class="hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">I Tuoi Video Gratuiti di Mindfulness</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-12">Benvenuto! Qui troverai una selezione curata di video di mindfulness per iniziare o approfondire il tuo percorso di consapevolezza. Scegli il tuo momento ideale e immergiti nella pratica.</p>
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8 text-center">I Tuoi Video Gratuiti di Mindfulness</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-center mb-12">Benvenuto! Qui troverai una selezione curata di video di mindfulness per iniziare o approfondire il tuo percorso di consapevolezza. Scegli il tuo momento ideale e immergiti nella pratica.</p>
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="card p-4">
-                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                    <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                        <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
                             <!-- Placeholder for actual video embed (e.g., YouTube iframe) -->
-                            <p class="text-gray-500">Video 1: Introduzione</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 1: Introduzione</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Introduzione alla Mindfulness</h3>
-                        <p class="text-gray-600">Un primo passo essenziale per comprendere le basi della consapevolezza e come integrarla con semplicità nella tua giornata, per una maggiore calma.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Introduzione alla Mindfulness</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Un primo passo essenziale per comprendere le basi della consapevolezza e come integrarla con semplicità nella tua giornata, per una maggiore calma.</p>
                     </div>
-                    <div class="card p-4">
-                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                    <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                        <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
                             <!-- Placeholder for actual video embed -->
-                            <p class="text-gray-500">Video 2: Meditazione Guidata</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 2: Meditazione Guidata</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Meditazione Guidata per la Calma Interiore</h3>
-                        <p class="text-gray-600">Una sessione guidata pensata per aiutarti a trovare un momento di profonda pace, ridurre lo stress accumulato e ritrovare la serenità.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Meditazione Guidata per la Calma Interiore</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Una sessione guidata pensata per aiutarti a trovare un momento di profonda pace, ridurre lo stress accumulato e ritrovare la serenità.</p>
                     </div>
-                    <div class="card p-4">
-                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                    <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                        <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
                             <!-- Placeholder for actual video embed -->
-                            <p class="text-gray-500">Video 3: Mindfulness in Movimento</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 3: Mindfulness in Movimento</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness in Movimento: Consapevolezza del Corpo</h3>
-                        <p class="text-gray-600">Scopri come portare la consapevolezza nel movimento quotidiano con semplici esercizi, trasformando ogni gesto in un'opportunità di presenza.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Mindfulness in Movimento: Consapevolezza del Corpo</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Scopri come portare la consapevolezza nel movimento quotidiano con semplici esercizi, trasformando ogni gesto in un'opportunità di presenza.</p>
                     </div>
-                    <div class="card p-4">
-                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                    <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                        <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
                             <!-- Placeholder for actual video embed -->
-                            <p class="text-gray-500">Video 4: Respiro Consapevole</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 4: Respiro Consapevole</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Il Potere del Respiro Consapevole</h3>
-                        <p class="text-gray-600">Un esercizio fondamentale per riconnettersi con il proprio respiro, l'ancora del momento presente, e coltivare una maggiore stabilità emotiva.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Il Potere del Respiro Consapevole</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Un esercizio fondamentale per riconnettersi con il proprio respiro, l'ancora del momento presente, e coltivare una maggiore stabilità emotiva.</p>
                     </div>
-                    <div class="card p-4">
-                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center mb-4">
+                    <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                        <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
                             <!-- Placeholder for actual video embed -->
-                            <p class="text-gray-500">Video 5: Mindfulness per il Sonno</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 5: Mindfulness per il Sonno</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness per un Sonno Riposante</h3>
-                        <p class="text-gray-600">Pratiche rilassanti e guidate per preparare la mente e il corpo a un riposo sereno e profondo, favorendo un sonno di qualità.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Mindfulness per un Sonno Riposante</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Pratiche rilassanti e guidate per preparare la mente e il corpo a un riposo sereno e profondo, favorendo un sonno di qualità.</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-white py-8 mt-16">
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white py-8 mt-16 transition-colors duration-300">
         <div class="container mx-auto px-6 text-center">
             <p>&copy; 2025 Caterina Figlioli. Tutti i diritti riservati.</p>
         </div>
     </footer>
 
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-consent-banner" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col md:flex-row items-center justify-between z-50 hidden">
-        <p class="text-sm text-center md:text-left mb-2 md:mb-0">
-            Utilizziamo i cookie per migliorare la tua esperienza di navigazione. Continuando a navigare accetti l'uso dei cookie. Per maggiori informazioni, consulta la nostra <a href="/privacy-policy.html" class="underline text-blue-400 hover:text-blue-300">Informativa sulla Privacy</a>.
-        </p>
-        <div class="flex space-x-2">
-            <button id="accept-cookies" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition duration-300">Accetta Tutto</button>
-            <button id="reject-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm transition duration-300">Rifiuta</button>
-        </div>
-    </div>
+    <!-- Enhanced Cookie Consent System -->
+    <!-- The cookie consent banner and modal are now handled by cookie-consent-manager.js -->
 </body>
 </html>

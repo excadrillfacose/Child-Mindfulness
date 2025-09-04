@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
+    <script src="js/seo-master.js" defer></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog - Caterina Figlioli</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/blog.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cookie-consent-manager.js"></script>
     <script type="module">
         // Firebase imports for authentication state check
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -128,6 +141,47 @@
                 console.log("Signed in anonymously.");
             }
 
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    
+                    if (isDark) {
+                        // Switch to light mode
+                        htmlElement.classList.remove('dark');
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        // Switch to dark mode
+                        htmlElement.classList.add('dark');
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
+
             // Mobile menu toggle - using the avatar as the toggle button
             const userAvatar = document.getElementById('user-avatar');
             const mobileMenu = document.getElementById('mobile-menu');
@@ -168,20 +222,28 @@
         });
     </script>
 </head>
-<body class="antialiased">
+<body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="text-xl font-bold text-gray-800 dark:text-gray-100">Caterina Figlioli</div>
             <div class="hidden md:flex space-x-8 items-center">
-                <a href="index.html" class="nav-link py-2">Home</a>
-                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
-                <a href="embed3.html" class="nav-link py-2">Sportello di Ascolto</a>
-                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
-                <a href="embed4.html" class="nav-link py-2 active">Blog</a>
-                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
+                <a href="index.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="embed1.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+                <a href="embed3.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 active text-blue-600 dark:text-blue-400">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
             </div>
             <div class="hamburger-menu">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
                 <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -189,21 +251,21 @@
                 </div>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
-            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
-            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
-            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
-            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
-            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
-            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
-            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Account</a>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
+            <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+            <a href="embed0.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Account</a>
         </div>
     </header>
 
     <main class="py-16">
         <div class="container mx-auto px-6">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-8 text-center">Il Blog di Caterina Figlioli: Approfondimenti e Ispirazioni</h1>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto text-center mb-12">Qui troverai articoli e riflessioni sulla mindfulness, lo yoga, il benessere e la crescita personale. Un luogo dove nutrire la mente e lo spirito, accompagnandoti nel tuo percorso di consapevolezza.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-8 text-center">Il Blog di Caterina Figlioli: Approfondimenti e Ispirazioni</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto text-center mb-12">Qui troverai articoli e riflessioni sulla mindfulness, lo yoga, il benessere e la crescita personale. Un luogo dove nutrire la mente e lo spirito, accompagnandoti nel tuo percorso di consapevolezza.</p>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Blog Article 1 -->

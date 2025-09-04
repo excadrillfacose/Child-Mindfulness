@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
 <head>
+    <script src="js/seo-master.js" defer></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sportello di Ascolto - Prenota Appuntamento</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +22,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/cookie-consent.css">
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/cookie-consent-manager.js"></script>
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -496,6 +509,47 @@
                 await signInAnonymously(auth);
             }
 
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    
+                    if (isDark) {
+                        // Switch to light mode
+                        htmlElement.classList.remove('dark');
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        // Switch to dark mode
+                        htmlElement.classList.add('dark');
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
+
             // Load settings
             await loadSettings();
             if (settings) {
@@ -564,20 +618,28 @@
         });
     </script>
 </head>
-<body class="antialiased booking-page">
+<body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <div class="text-xl font-bold text-gray-800">Caterina Figlioli</div>
+            <div class="text-xl font-bold text-gray-800 dark:text-gray-100">Caterina Figlioli</div>
             <div class="hidden md:flex space-x-8 items-center">
-                <a href="index.html" class="nav-link py-2">Home</a>
-                <a href="embed1.html" class="nav-link py-2">Mindfulness</a>
-                <a href="embed3.html" class="nav-link py-2 active">Sportello di Ascolto</a>
-                <a href="embed2.html" class="nav-link py-2">Video Gratuiti</a>
-                <a href="embed4.html" class="nav-link py-2">Blog</a>
-                <a href="index.html#contact" class="nav-link py-2">Contatti</a>
+                <a href="index.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="embed1.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+                <a href="embed3.html" class="nav-link py-2 active text-blue-600 dark:text-blue-400">Sportello di Ascolto</a>
+                <a href="embed2.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+                <a href="embed4.html" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+                <a href="index.html#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
             </div>
             <div class="hamburger-menu">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
                 <div id="user-avatar" class="user-avatar anonymous" onclick="window.location.href='embed0.html'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -585,20 +647,20 @@
                 </div>
             </div>
         </nav>
-        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
-            <a href="index.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Home</a>
-            <a href="embed1.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Mindfulness</a>
-            <a href="embed3.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Sportello di Ascolto</a>
-            <a href="embed2.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Video Gratuiti</a>
-            <a href="embed4.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Blog</a>
-            <a href="index.html#contact" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Contatti</a>
-            <a href="embed0.html" class="block py-2 text-gray-700 hover:text-[#5A67D8]">Account</a>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
+            <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Mindfulness</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+            <a href="embed2.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
+            <a href="embed4.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
+            <a href="index.html#contact" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
+            <a href="embed0.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Account</a>
         </div>
     </header>
 
     <!-- Celebration Overlay -->
     <div id="celebration" class="celebration-container hidden">
-        <div class="bg-green-500 text-white p-8 rounded-full shadow-2xl">
+        <div class="bg-green-500 dark:bg-green-600 text-white p-8 rounded-full shadow-2xl">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -610,32 +672,32 @@
             <div id="message-box" class="hidden"></div>
 
             <!-- Login Prompt for Non-Authenticated Users -->
-            <div id="login-prompt" class="section-card text-center mb-8 hidden">
+            <div id="login-prompt" class="section-card text-center mb-8 hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                 <div class="floating-element">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto mb-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
                 <h3 class="text-2xl font-bold mb-4 gradient-text">Accesso Richiesto per Prenotare</h3>
-                <p class="text-lg text-gray-600 mb-6 max-w-md mx-auto">Per garantire la privacy e la sicurezza del nostro servizio di ascolto, è necessario essere registrati per prenotare un appuntamento.</p>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-md mx-auto">Per garantire la privacy e la sicurezza del nostro servizio di ascolto, è necessario essere registrati per prenotare un appuntamento.</p>
                 <a href="embed0.html" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg">
                     Accedi o Registrati Ora
                 </a>
             </div>
 
             <!-- Hero Section -->
-            <div class="section-card mb-8 text-center">
+            <div class="section-card mb-8 text-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6 gradient-text">Sportello di Ascolto</h1>
-                <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">Uno spazio sicuro dove puoi essere te stesso, senza giudizio</p>
+                <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">Uno spazio sicuro dove puoi essere te stesso, senza giudizio</p>
                 
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div class="floating-element">
                         <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/17a1dbc5-2b9d-4afe-adc9-83a1e8019707.png" alt="Ambiente accogliente e sereno per colloqui privati con poltrona comoda, luce naturale e piante per creare atmosfera rilassante e sicura" class="rounded-xl shadow-2xl mx-auto pulse-on-hover" />
                     </div>
                     <div class="text-left">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">A volte basta essere ascoltati. Con il cuore.</h2>
-                        <p class="text-lg text-gray-600 mb-4">Nel mio sito ho scelto di creare uno <strong>Spazio di Ascolto</strong>, un luogo sicuro e accogliente dove puoi raccontarti, sfogarti, parlare liberamente — senza giudizio.</p>
-                        <p class="text-lg text-gray-600">Non è una seduta psicologica, ma un momento semplice e profondo in cui puoi essere visto, sentito, accolto per ciò che sei.</p>
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">A volte basta essere ascoltati. Con il cuore.</h2>
+                        <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">Nel mio sito ho scelto di creare uno <strong>Spazio di Ascolto</strong>, un luogo sicuro e accogliente dove puoi raccontarti, sfogarti, parlare liberamente — senza giudizio.</p>
+                        <p class="text-lg text-gray-600 dark:text-gray-300">Non è una seduta psicologica, ma un momento semplice e profondo in cui puoi essere visto, sentito, accolto per ciò che sei.</p>
                     </div>
                 </div>
             </div>
@@ -643,8 +705,8 @@
             <!-- Booking Section -->
             <div id="booking-section" class="hidden">
                 <!-- How It Works -->
-                <div class="section-card mb-8">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center">
+                <div class="section-card mb-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8 text-center flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
@@ -848,15 +910,7 @@
         </div>
     </footer>
 
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-consent-banner" class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col md:flex-row items-center justify-between z-50 hidden">
-        <p class="text-sm text-center md:text-left mb-2 md:mb-0">
-            Utilizziamo i cookie per migliorare la tua esperienza di navigazione. Continuando a navigare accetti l'uso dei cookie. Per maggiori informazioni, consulta la nostra <a href="/privacy-policy.html" class="underline text-blue-400 hover:text-blue-300">Informativa sulla Privacy</a>.
-        </p>
-        <div class="flex space-x-2">
-            <button id="accept-cookies" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition duration-300">Accetta Tutto</button>
-            <button id="reject-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm transition duration-300">Rifiuta</button>
-        </div>
-    </div>
+    <!-- Enhanced Cookie Consent System -->
+    <!-- The cookie consent banner and modal are now handled by cookie-consent-manager.js -->
 </body>
 </html>
