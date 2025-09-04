@@ -1,40 +1,85 @@
 /* Main Stylesheet for Caterina Figlioli - Child Mindfulness Project */
 
+/* CSS Custom Properties for Theme Support */
+:root {
+    /* Light Mode Colors */
+    --bg-primary: #F8F7F4;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #F9FAFB;
+    --text-primary: #333333;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --accent-primary: #5A67D8;
+    --accent-secondary: #4C51BF;
+    --border-primary: #E2E8F0;
+    --border-secondary: #F3F4F6;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --shadow-heavy: rgba(0, 0, 0, 0.2);
+    --header-bg: rgba(255, 255, 255, 0.8);
+    --card-bg: #FFFFFF;
+    --footer-bg: #1f2937;
+    --footer-text: #FFFFFF;
+}
+
+/* Dark Mode Colors */
+.dark {
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --bg-tertiary: #334155;
+    --text-primary: #F1F5F9;
+    --text-secondary: #CBD5E1;
+    --text-tertiary: #94A3B8;
+    --accent-primary: #6366F1;
+    --accent-secondary: #4F46E5;
+    --border-primary: #334155;
+    --border-secondary: #475569;
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.4);
+    --shadow-heavy: rgba(0, 0, 0, 0.5);
+    --header-bg: rgba(30, 41, 59, 0.9);
+    --card-bg: #1E293B;
+    --footer-bg: #0F172A;
+    --footer-text: #F1F5F9;
+}
+
 /* Light Mode Defaults */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #F8F7F4; /* Soft off-white */
-    color: #333333; /* Darker, more readable text */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Navigation Styles */
 .nav-link {
     transition: color 0.3s, border-bottom-color 0.3s;
     border-bottom: 2px solid transparent;
-    color: #6B7280; /* Slightly softer nav link color */
+    color: var(--text-secondary);
 }
 
 .nav-link:hover, .nav-link.active {
-    color: #5A67D8; /* Primary accent blue */
-    border-bottom-color: #5A67D8;
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
 }
 
 /* Card Styles */
 .card {
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8F0;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-primary);
     border-radius: 0.75rem;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px var(--shadow-light), 0 4px 6px -2px var(--shadow-light);
 }
 
 /* Social Icon Styles */
 .social-icon {
-    transition: transform 0.2s;
+    transition: transform 0.2s, color 0.3s ease;
+    color: var(--text-secondary);
 }
 
 .social-icon:hover {
@@ -43,30 +88,34 @@ body {
 
 /* Header Styles */
 #header {
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--header-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px var(--shadow-light);
+    transition: background-color 0.3s ease;
 }
 
 /* Mobile Menu Styles */
 #mobile-menu {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--header-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    transition: background-color 0.3s ease;
 }
 
 /* Footer Styles */
 footer {
-    background-color: #1f2937;
-    color: white;
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    transition: background-color 0.3s ease;
 }
 
 /* Cookie Consent Banner */
 #cookie-consent-banner {
-    background-color: #1f2937;
-    color: white;
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
     z-index: 9999;
+    transition: background-color 0.3s ease;
 }
 
 #cookie-consent-banner a {
@@ -96,6 +145,39 @@ footer {
     scroll-behavior: smooth;
 }
 
+/* Theme Toggle Button Styles */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--card-bg);
+    border: 2px solid var(--border-primary);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px var(--shadow-light);
+}
+
+.theme-toggle:hover {
+    background-color: var(--accent-primary);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px var(--shadow-medium);
+}
+
+.theme-toggle svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover svg {
+    transform: rotate(180deg);
+}
+
 /* Responsive Design Helpers */
 @media (max-width: 768px) {
     .nav-link {
@@ -106,8 +188,18 @@ footer {
     }
     
     .nav-link:hover, .nav-link.active {
-        border-left-color: #5A67D8;
+        border-left-color: var(--accent-primary);
         border-bottom-color: transparent;
+    }
+    
+    .theme-toggle {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
     }
 }
 

@@ -6,6 +6,11 @@ body.booking-page {
     min-height: 100vh;
 }
 
+/* Dark mode body background */
+.dark body.booking-page {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+
 /* Section Cards with Glass Effect */
 .section-card {
     background: rgba(255, 255, 255, 0.9);
@@ -15,12 +20,23 @@ body.booking-page {
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode section cards */
+.dark .section-card {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(51, 65, 85, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .section-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dark .section-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* Icon Lists */
@@ -34,8 +50,17 @@ body.booking-page {
     transition: background-color 0.3s ease;
 }
 
+/* Dark mode icon list items */
+.dark .icon-list li {
+    background: rgba(51, 65, 85, 0.5);
+}
+
 .icon-list li:hover {
     background: rgba(255, 255, 255, 0.8);
+}
+
+.dark .icon-list li:hover {
+    background: rgba(51, 65, 85, 0.8);
 }
 
 .icon-list li svg {
@@ -53,6 +78,14 @@ body.booking-page {
     width: 100%;
     transition: all 0.3s ease;
     font-size: 1rem;
+    color: var(--text-primary);
+}
+
+/* Dark mode form inputs */
+.dark .form-input {
+    background: rgba(51, 65, 85, 0.9);
+    border: 2px solid var(--border-primary);
+    color: var(--text-primary);
 }
 
 .form-input:focus {
@@ -61,6 +94,12 @@ body.booking-page {
     background: rgba(255, 255, 255, 1);
     box-shadow: 0 0 0 4px rgba(90, 103, 216, 0.1);
     transform: translateY(-1px);
+}
+
+.dark .form-input:focus {
+    background: rgba(51, 65, 85, 1);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
 }
 
 .input-focused {
@@ -297,6 +336,10 @@ button[type="submit"]:disabled {
 .form-input:hover {
     border-color: #a5b4fc;
     transform: translateY(-1px);
+}
+
+.dark .form-input:hover {
+    border-color: var(--accent-secondary);
 }
 
 .form-input:focus:hover {

@@ -5,13 +5,23 @@
     background-color: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 0.75rem;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s ease, border-color 0.3s ease;
     overflow: hidden;
+}
+
+/* Dark mode blog cards */
+.dark .blog-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-primary);
 }
 
 .blog-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .blog-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
 }
 
 /* Blog Card Image Styles */
@@ -32,12 +42,24 @@
     font-weight: 600;
     margin-bottom: 0.5rem;
     line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode blog card titles */
+.dark .blog-card h3 {
+    color: var(--text-primary);
 }
 
 .blog-card p {
     color: #6B7280;
     line-height: 1.6;
     margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode blog card text */
+.dark .blog-card p {
+    color: var(--text-secondary);
 }
 
 .blog-card a {
@@ -47,9 +69,18 @@
     transition: color 0.2s ease;
 }
 
+/* Dark mode blog card links */
+.dark .blog-card a {
+    color: var(--accent-primary);
+}
+
 .blog-card a:hover {
     color: #4C51BF;
     text-decoration: underline;
+}
+
+.dark .blog-card a:hover {
+    color: var(--accent-secondary);
 }
 
 /* Blog Grid Layout */
@@ -71,6 +102,12 @@
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.2;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode blog header */
+.dark .blog-header h1 {
+    color: var(--text-primary);
 }
 
 .blog-header p {
@@ -79,6 +116,12 @@
     line-height: 1.7;
     max-width: 48rem;
     margin: 0 auto;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode blog header text */
+.dark .blog-header p {
+    color: var(--text-secondary);
 }
 
 /* Blog Category Tags */
@@ -105,15 +148,34 @@
     border-top: 1px solid #E5E7EB;
     font-size: 0.875rem;
     color: #9CA3AF;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode blog meta */
+.dark .blog-meta {
+    border-top: 1px solid var(--border-primary);
+    color: var(--text-tertiary);
 }
 
 .blog-meta .author {
     font-weight: 500;
     color: #374151;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode blog meta author */
+.dark .blog-meta .author {
+    color: var(--text-primary);
 }
 
 .blog-meta .date {
     color: #6B7280;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode blog meta date */
+.dark .blog-meta .date {
+    color: var(--text-secondary);
 }
 
 /* Blog Reading Time */
@@ -123,6 +185,12 @@
     gap: 0.25rem;
     color: #9CA3AF;
     font-size: 0.875rem;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode reading time */
+.dark .reading-time {
+    color: var(--text-tertiary);
 }
 
 .reading-time svg {
@@ -173,11 +241,26 @@
     transition: all 0.2s ease;
 }
 
+/* Dark mode filter buttons */
+.dark .filter-button {
+    border: 2px solid var(--border-primary);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+}
+
 .filter-button:hover,
 .filter-button.active {
     border-color: #5A67D8;
     color: #5A67D8;
     background: #F0F4FF;
+}
+
+/* Dark mode filter button hover/active */
+.dark .filter-button:hover,
+.dark .filter-button.active {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(99, 102, 241, 0.1);
 }
 
 /* Mobile Responsiveness */
@@ -279,11 +362,26 @@
     transition: all 0.2s ease;
 }
 
+/* Dark mode pagination buttons */
+.dark .pagination-button {
+    border: 1px solid var(--border-primary);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+}
+
 .pagination-button:hover,
 .pagination-button.active {
     border-color: #5A67D8;
     color: #5A67D8;
     background: #F0F4FF;
+}
+
+/* Dark mode pagination button hover/active */
+.dark .pagination-button:hover,
+.dark .pagination-button.active {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(99, 102, 241, 0.1);
 }
 
 .pagination-button:disabled {
