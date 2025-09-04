@@ -566,19 +566,42 @@
             document.getElementById('preferred-date').addEventListener('change', handleDateSelection);
             document.getElementById('booking-form').addEventListener('submit', handleFormSubmission);
 
-            // Mobile menu toggle - using the avatar as the toggle button
-            const userAvatar = document.getElementById('user-avatar');
+            // Mobile menu toggle - using the hamburger button
+            const hamburgerButton = document.getElementById('hamburger-button');
             const mobileMenu = document.getElementById('mobile-menu');
+            const userAvatar = document.getElementById('user-avatar');
             
-            if (userAvatar && mobileMenu) {
-                // Add click event to toggle mobile menu on mobile devices
-                userAvatar.addEventListener('click', (e) => {
-                    // Check if we're on mobile (screen width < 768px)
-                    if (window.innerWidth < 768) {
-                        e.preventDefault();
-                        mobileMenu.classList.toggle('hidden');
+            if (hamburgerButton && mobileMenu) {
+                // Add click event to toggle mobile menu
+                hamburgerButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    mobileMenu.classList.toggle('hidden');
+                    hamburgerButton.classList.toggle('active');
+                });
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!hamburgerButton.contains(e.target) && !mobileMenu.contains(e.target)) {
+                        mobileMenu.classList.add('hidden');
+                        hamburgerButton.classList.remove('active');
                     }
-                    // On desktop, it will navigate to embed0.html as set in onclick attribute
+                });
+                
+                // Close mobile menu when clicking on a link
+                const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+                mobileMenuLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                        hamburgerButton.classList.remove('active');
+                    });
+                });
+            }
+            
+            // Keep user avatar functionality separate for account access
+            if (userAvatar) {
+                userAvatar.addEventListener('click', (e) => {
+                    // Always navigate to embed0.html when clicking avatar
+                    window.location.href = 'embed0.html';
                 });
             }
 
@@ -632,6 +655,11 @@
                 <a href="index.html#contact" class="nav-link py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
             </div>
             <div class="hamburger-menu">
+                <button id="hamburger-button" class="hamburger-button md:hidden" aria-label="Toggle mobile menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
                 <button id="theme-toggle" class="theme-toggle" title="Toggle dark/light mode">
                     <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -649,8 +677,8 @@
         </nav>
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
             <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
-            <a href="embed1.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Mindfulness</a>
-            <a href="embed3.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Sportello di Ascolto</a>
+            <a href="embed1.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">I Miei Corsi</a>
+            <a href="embed3.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 active">Sportello di Ascolto</a>
             <a href="embed2.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Video Gratuiti</a>
             <a href="embed4.html" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Blog</a>
             <a href="index.html#contact" class="block py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contatti</a>
