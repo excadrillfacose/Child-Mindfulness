@@ -286,10 +286,172 @@ a:focus {
     gap: 12px;
 }
 
+/* Hamburger Button Styles */
+.hamburger-button {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.hamburger-button:hover {
+    background-color: var(--border-secondary);
+}
+
+.hamburger-button span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--text-primary);
+    margin: 3px 0;
+    transition: all 0.3s ease;
+    border-radius: 1px;
+}
+
+/* Hamburger Animation States */
+.hamburger-button.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger-button.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-button.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile Menu Enhanced Styles */
+#mobile-menu {
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border-top: 1px solid var(--border-primary);
+    box-shadow: 0 4px 6px -1px var(--shadow-light);
+}
+
+#mobile-menu.show {
+    display: block !important;
+}
+
+#mobile-menu a {
+    display: block;
+    padding: 12px 0;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    padding-left: 16px;
+}
+
+#mobile-menu a:hover,
+#mobile-menu a.active {
+    color: var(--accent-primary);
+    border-left-color: var(--accent-primary);
+    background-color: var(--border-secondary);
+}
+
+/* Responsive Design Improvements */
 @media (max-width: 768px) {
+    /* Show hamburger button on mobile */
+    .hamburger-button {
+        display: flex;
+    }
+    
+    /* Hide desktop navigation */
+    .hidden.md\\:flex {
+        display: none !important;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 0;
+        border-bottom: none;
+        border-left: 3px solid transparent;
+        padding-left: 1rem;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+        border-left-color: var(--accent-primary);
+        border-bottom-color: transparent;
+    }
+    
+    .theme-toggle {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .theme-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+    
     .user-avatar {
         width: 36px;
         height: 36px;
         font-size: 14px;
     }
+    
+    /* Ensure mobile menu is properly positioned */
+    #mobile-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 50;
+    }
 }
+
+/* Mobile optimizations for very small screens */
+@media (max-width: 480px) {
+    .hamburger-button {
+        width: 36px;
+        height: 36px;
+        padding: 6px;
+    }
+    
+    .hamburger-button span {
+        width: 20px;
+        height: 2px;
+        margin: 2px 0;
+    }
+    
+    .hamburger-menu {
+        gap: 8px;
+    }
+    
+    #mobile-menu {
+        padding: 16px 20px;
+    }
+    
+    #mobile-menu a {
+        padding: 10px 0;
+        font-size: 16px;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .hamburger-button span,
+    .hamburger-button.active span:nth-child(1),
+    .hamburger-button.active span:nth-child(3),
+    #mobile-menu {
+        transition: none;
+    }
+}
+
+/* Focus states for hamburger button */
+.hamburger-button:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+=======
