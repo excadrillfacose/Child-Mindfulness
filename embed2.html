@@ -15,6 +15,32 @@
             }
         }
     </script>
+    <style>
+        #development-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff; /* Sfondo bianco per massima visibilità */
+            color: #4b5563; /* Testo grigio scuro */
+            z-index: 99999; /* Assicura che sia sopra a tutti gli altri elementi */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem; /* Dimensione del font grande */
+            font-weight: 700; /* Grassetto */
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            #development-overlay {
+                background-color: #1f2937; /* Dark mode background */
+                color: #f3f4f6; /* Light text in dark mode */
+            }
+        }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -46,21 +72,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app); // Initialize Firestore
 
-        // Elements to control visibility
-        const videoGallery = document.getElementById('video-gallery');
-        const loginPrompt = document.getElementById('login-prompt');
-        const pageMessageBox = document.getElementById('page-message-box'); // Renamed for clarity
-
-        // Function to show/hide messages
-        const showMessage = (message, type = 'info') => {
-            pageMessageBox.textContent = message;
-            pageMessageBox.className = `p-3 rounded-md mb-4 text-center ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
-            pageMessageBox.style.display = 'block';
-            setTimeout(() => {
-                pageMessageBox.style.display = 'none';
-            }, 5000);
-        };
-
         // Function to update header UI based on auth state
         const updateHeaderAuthUI = (user) => {
             const userAvatar = document.getElementById('user-avatar');
@@ -87,17 +98,7 @@
 
         // Handle authentication state changes
         onAuthStateChanged(auth, async (user) => {
-            updateHeaderAuthUI(user); // Update the main header
-
-            if (user && !user.isAnonymous) { // User is logged in with email/password
-                videoGallery.classList.remove('hidden');
-                loginPrompt.classList.add('hidden');
-                showMessage('Benvenuto! Puoi ora accedere ai video.', 'success');
-            } else { // User is not logged in or is anonymous
-                videoGallery.classList.add('hidden');
-                loginPrompt.classList.remove('hidden');
-                // showMessage('Accedi o registrati per vedere i video.', 'info'); // Avoid showing on every page load
-            }
+            updateHeaderAuthUI(user);
         });
 
         // Function to handle cookie consent
@@ -158,7 +159,6 @@
                     console.log("Signed in with custom token.");
                 } catch (error) {
                     console.error("Error signing in with custom token:", error);
-                    showMessage(`Errore nell'accesso automatico: ${error.message}`, 'error');
                     await signInAnonymously(auth); // Fallback to anonymous
                 }
             } else {
@@ -166,7 +166,46 @@
                 console.log("Signed in anonymously.");
             }
 
-            // Theme toggle functionality is handled by theme-toggle.js
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const isDark = htmlElement.classList.contains('dark');
+                    
+                    if (isDark) {
+                        // Switch to light mode
+                        htmlElement.classList.remove('dark');
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        // Switch to dark mode
+                        htmlElement.classList.add('dark');
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
 
             // Mobile menu toggle - using the hamburger button
             const hamburgerButton = document.getElementById('hamburger-button');
@@ -233,6 +272,9 @@
 </head>
 <body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
+    <div id="development-overlay">
+        sito in sviluppo 🌸
+    </div>
     <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
             <div class="text-xl font-bold text-gray-800 dark:text-gray-100">Caterina Figlioli</div>
@@ -278,53 +320,50 @@
 
     <main class="py-16">
         <div class="container mx-auto px-6">
-            <div id="page-message-box" class="hidden"></div>
-
-            <div id="login-prompt" class="bg-yellow-100 dark:bg-yellow-900 border-l-4 border-yellow-500 text-yellow-700 dark:text-yellow-300 p-4 rounded-md text-center hidden transition-colors duration-300">
-                <p class="font-bold text-lg mb-2">Contenuto Riservato!</p>
-                <p>Per accedere ai video gratuiti, è necessario <a href="embed0.html" class="font-bold underline text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">Accedere o Registrarsi</a>.</p>
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-6">Video Gratuiti di Mindfulness</h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">Una selezione di pratiche guidate per iniziare il tuo percorso di consapevolezza e ritrovare calma e centratura nella vita di tutti i giorni.</p>
             </div>
 
-            <div id="video-gallery" class="hidden">
-                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8 text-center">I Tuoi Video Gratuiti di Mindfulness</h2>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-center mb-12">Benvenuto! Qui troverai una selezione curata di video di mindfulness per iniziare o approfondire il tuo percorso di consapevolezza. Scegli il tuo momento ideale e immergiti nella pratica.</p>
+            <div class="section-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8 text-center">Inizia la Tua Pratica Oggi</h2>
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
                     <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                         <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <!-- Placeholder for actual video embed (e.g., YouTube iframe) -->
-                            <p class="text-gray-500 dark:text-gray-400">Video 1: Introduzione</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 1: Introduzione alla Mindfulness</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Introduzione alla Mindfulness</h3>
-                        <p class="text-gray-600 dark:text-gray-300">Un primo passo essenziale per comprendere le basi della consapevolezza e come integrarla con semplicità nella tua giornata, per una maggiore calma.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Introduzione alla Pratica di Consapevolezza</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Un video pensato per chi si avvicina per la prima volta alla mindfulness, spiegando i concetti base e i benefici di una vita più presente.</p>
                     </div>
+
                     <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                         <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <!-- Placeholder for actual video embed -->
-                            <p class="text-gray-500 dark:text-gray-400">Video 2: Meditazione Guidata</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 2: 5 Minuti di Calma</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Meditazione Guidata per la Calma Interiore</h3>
-                        <p class="text-gray-600 dark:text-gray-300">Una sessione guidata pensata per aiutarti a trovare un momento di profonda pace, ridurre lo stress accumulato e ritrovare la serenità.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">5 Minuti per Ricaricare le Batterie</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Una breve pratica guidata ideale per le pause lavoro o quando senti il bisogno di staccare e ritrovare la concentrazione.</p>
                     </div>
+
                     <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                         <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <!-- Placeholder for actual video embed -->
-                            <p class="text-gray-500 dark:text-gray-400">Video 3: Mindfulness in Movimento</p>
+                            <p class="text-gray-500 dark:text-gray-400">Video 3: Body Scan</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Mindfulness in Movimento: Consapevolezza del Corpo</h3>
-                        <p class="text-gray-600 dark:text-gray-300">Scopri come portare la consapevolezza nel movimento quotidiano con semplici esercizi, trasformando ogni gesto in un'opportunità di presenza.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Body Scan per Rilassare il Corpo</h3>
+                        <p class="text-gray-600 dark:text-gray-300">Una meditazione guidata per esplorare le sensazioni del corpo, rilasciando tensioni e promuovendo un profondo senso di calma e presenza fisica.</p>
                     </div>
+
                     <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                         <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <!-- Placeholder for actual video embed -->
                             <p class="text-gray-500 dark:text-gray-400">Video 4: Respiro Consapevole</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Il Potere del Respiro Consapevole</h3>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Meditazione sul Respiro Consapevole</h3>
                         <p class="text-gray-600 dark:text-gray-300">Un esercizio fondamentale per riconnettersi con il proprio respiro, l'ancora del momento presente, e coltivare una maggiore stabilità emotiva.</p>
                     </div>
+
                     <div class="card p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
                         <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center mb-4">
-                            <!-- Placeholder for actual video embed -->
                             <p class="text-gray-500 dark:text-gray-400">Video 5: Mindfulness per il Sonno</p>
                         </div>
                         <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-200">Mindfulness per un Sonno Riposante</h3>
@@ -341,7 +380,5 @@
         </div>
     </footer>
 
-    <!-- Enhanced Cookie Consent System -->
-    <!-- The cookie consent banner and modal are now handled by cookie-consent-manager.js -->
-</body>
+    </body>
 </html>
