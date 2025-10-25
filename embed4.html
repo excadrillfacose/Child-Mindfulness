@@ -15,6 +15,32 @@
             }
         }
     </script>
+    <style>
+        #development-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff; /* Sfondo bianco per massima visibilità */
+            color: #4b5563; /* Testo grigio scuro */
+            z-index: 99999; /* Assicura che sia sopra a tutti gli altri elementi */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem; /* Dimensione del font grande */
+            font-weight: 700; /* Grassetto */
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            #development-overlay {
+                background-color: #1f2937; /* Dark mode background */
+                color: #f3f4f6; /* Light text in dark mode */
+            }
+        }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -247,6 +273,9 @@
 </head>
 <body class="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
+    <div id="development-overlay">
+        sito in sviluppo 🌸
+    </div>
     <header id="header" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-colors duration-300">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
             <div class="text-xl font-bold text-gray-800 dark:text-gray-100">Caterina Figlioli</div>
@@ -296,7 +325,6 @@
             <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto text-center mb-12">Qui troverai articoli e riflessioni sulla mindfulness, lo yoga, il benessere e la crescita personale. Un luogo dove nutrire la mente e lo spirito, accompagnandoti nel tuo percorso di consapevolezza.</p>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Blog Article 1 -->
                 <div class="blog-card p-6">
                     <img src="https://placehold.co/400x250/E2E8F0/4A4A4A?text=Mindfulness+Mattutina" alt="Immagine Articolo 1: Mindfulness Mattutina" class="rounded-md mb-4 w-full h-48 object-cover">
                     <h3 class="text-xl font-semibold mb-2 text-gray-700">La Mindfulness per Iniziare Bene la Giornata</h3>
@@ -304,7 +332,6 @@
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
-                <!-- Blog Article 2 -->
                 <div class="blog-card p-6">
                     <img src="https://placehold.co/400x250/A0AEC0/FFFFFF?text=Yoga+e+Mindfulness" alt="Immagine Articolo 2: Yoga e Mindfulness" class="rounded-md mb-4 w-full h-48 object-cover">
                     <h3 class="text-xl font-semibold mb-2 text-gray-700">Yoga e Mindfulness: Un'Unione Perfetta per il Benessere</h3>
@@ -312,7 +339,6 @@
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
-                <!-- Blog Article 3 -->
                 <div class="blog-card p-6">
                     <img src="https://placehold.co/400x250/718096/FFFFFF?text=Gestione+Stress" alt="Immagine Articolo 3: Gestione Stress" class="rounded-md mb-4 w-full h-48 object-cover">
                     <h3 class="text-xl font-semibold mb-2 text-gray-700">Come Gestire lo Stress con la Consapevolezza</h3>
@@ -320,7 +346,6 @@
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
-                <!-- Blog Article 4 -->
                 <div class="blog-card p-6">
                     <img src="https://placehold.co/400x250/9F7AEA/FFFFFF?text=Mindfulness+Genitori" alt="Immagine Articolo 4: Mindfulness Genitori" class="rounded-md mb-4 w-full h-48 object-cover">
                     <h3 class="text-xl font-semibold mb-2 text-gray-700">Mindfulness per Genitori: Coltivare la Pazienza e la Presenza</h3>
@@ -328,9 +353,10 @@
                     <a href="#" class="text-blue-600 hover:underline font-medium">Leggi di più</a>
                 </div>
 
-                <!-- Blog Article 5 -->
                 <div class="blog-card p-6">
                     <img src="https://placehold.co/400x250/4FD1C5/FFFFFF?text=Respiro+Consapevole" alt="Immagine Articolo 5: Respiro Consapevole" class="rounded-md mb-4 w-full h-48 object-cover">
                     <h3 class="text-xl font-semibold mb-2 text-gray-700">Il Potere Trasformativo del Respiro Consapevole</h3>
                     <p class="text-gray-600 text-sm mb-4">Un'esplorazione approfondita di una delle pratiche fondamentali della mindfulness, il respiro, come strumento potente per il benessere fisico e mentale.</p>
-                    <a href="#" class="text-blue-60
+                    <a href="#" class="text-blue-600
+
+}
